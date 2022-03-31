@@ -28,5 +28,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DoytoQLRequest {
-    private String foo;
+    private String operation;
+    private String from;
 }

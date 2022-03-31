@@ -17,7 +17,11 @@
 
 package win.doyto.query.language.config;
 
+import io.r2dbc.spi.ConnectionFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import win.doyto.query.r2dbc.R2dbcOperations;
+import win.doyto.query.r2dbc.R2dbcTemplate;
 import win.doyto.query.reactive.webflux.config.WebFluxConfigurerAdapter;
 
 /**
@@ -27,5 +31,10 @@ import win.doyto.query.reactive.webflux.config.WebFluxConfigurerAdapter;
  */
 @Configuration
 public class WebFluxConfiguration extends WebFluxConfigurerAdapter {
+
+    @Bean
+    public R2dbcOperations r2dbcOperations(ConnectionFactory connectionFactory) {
+        return new R2dbcTemplate(connectionFactory);
+    }
 
 }

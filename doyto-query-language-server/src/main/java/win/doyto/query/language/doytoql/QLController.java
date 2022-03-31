@@ -17,10 +17,14 @@
 
 package win.doyto.query.language.doytoql;
 
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import win.doyto.query.r2dbc.R2dbcOperations;
+import win.doyto.query.service.PageList;
+import win.doyto.query.sql.SqlAndArgs;
 import win.doyto.query.web.response.JsonBody;
 
 /**
@@ -30,9 +34,21 @@ import win.doyto.query.web.response.JsonBody;
  */
 @JsonBody
 @RestController
+@AllArgsConstructor
 public class QLController {
+
+    private R2dbcOperations r2dbcOperations;
+
+    @SuppressWarnings("java:S1452")
     @PostMapping("DoytoQL")
-    public Mono<DoytoQLResponse> execute(@RequestBody DoytoQLRequest payload) {
-        return Mono.just(new DoytoQLResponse());
+    public Mono<?> execute(@RequestBody DoytoQLRequest request) {
+
+        String table = request.getFrom();
+
+        return r2dbcOperations
+                .query(new SqlAndArgs("select * from " + table), new MapRowMapper())
+                .collectList()
+                .zipWith(r2dbcOperations.count(new SqlAndArgs("select count(*) from " + table)))
+                .map(t -> new PageList<>(t.getT1(), t.getT2()));
     }
 }

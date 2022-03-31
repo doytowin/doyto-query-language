@@ -18,15 +18,21 @@
 package win.doyto.query.language.doytoql;
 
 import jakarta.annotation.Resource;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import win.doyto.query.language.DoytoQLApplication;
+import win.doyto.query.r2dbc.R2dbcOperations;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.function.Consumer;
 
 /**
@@ -41,6 +47,15 @@ class QLControllerTest {
     @Resource
     protected WebTestClient webTestClient;
 
+    @BeforeEach
+    void setUp(@Autowired R2dbcOperations r2dbcOperations) throws IOException {
+        var schema = StreamUtils.copyToString(
+                this.getClass().getResourceAsStream("/schema.sql"),
+                Charset.defaultCharset()
+        );
+        r2dbcOperations.update(schema).block();
+    }
+
     private Consumer<EntityExchangeResult<byte[]>> log() {
         return entityExchangeResult -> System.out.println(entityExchangeResult.toString());
     }
@@ -48,6 +63,9 @@ class QLControllerTest {
     @Test
     void requestShouldReturnOK() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("query");
+        doytoQLRequest.setFrom("t_user");
+
         webTestClient.post().uri("/DoytoQL/")
                      .contentType(MediaType.APPLICATION_JSON)
                      .body(BodyInserters.fromValue(doytoQLRequest))
@@ -55,7 +73,12 @@ class QLControllerTest {
                      .expectStatus().isOk()
                      .expectBody()
                      .consumeWith(log())
-                     .jsonPath("$.success").isEqualTo(true);
+                     .jsonPath("$.success").isEqualTo(true)
+                     .jsonPath("$.data.total").isEqualTo(5)
+                     .jsonPath("$.data.list.size()").isEqualTo(5)
+                     .jsonPath("$.data.list[0].username").isEqualTo("f0rb")
+                     .jsonPath("$.data.list[1].username").isEqualTo("user2")
+        ;
     }
 
 }

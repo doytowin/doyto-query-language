@@ -17,16 +17,30 @@
 
 package win.doyto.query.language.doytoql;
 
-import lombok.Getter;
-import lombok.Setter;
+import io.r2dbc.spi.ColumnMetadata;
+import io.r2dbc.spi.Row;
+import win.doyto.query.r2dbc.RowMapper;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * DoytoQLRequest
+ * MapRowMapper
  *
  * @author f0rb on 2022-03-31
  */
-@Getter
-@Setter
-public class DoytoQLResponse {
+public class MapRowMapper implements RowMapper<Map<String, Object>> {
 
+    @Override
+    public Map<String, Object> map(Row row, int rn) {
+        Map<String, Object> ret = new LinkedHashMap<>();
+
+        List<? extends ColumnMetadata> mds = row.getMetadata().getColumnMetadatas();
+        for (ColumnMetadata md : mds) {
+            String colName = md.getName();
+            ret.put(colName.toLowerCase(), row.get(colName));
+        }
+        return ret;
+    }
 }
