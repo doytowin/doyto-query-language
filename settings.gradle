@@ -6,3 +6,5 @@ pluginManagement {
 	}
 }
 rootProject.name = 'doyto-query-language-parent'
+
+include 'doyto-query-language-server'

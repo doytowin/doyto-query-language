@@ -2,3 +2,4 @@
 !.idea/copyright
 
 .gradle
+**/build/
