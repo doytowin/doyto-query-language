@@ -23,11 +23,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import win.doyto.query.config.GlobalConfiguration;
+import win.doyto.query.core.DoytoQuery;
 import win.doyto.query.core.PageQuery;
 import win.doyto.query.r2dbc.R2dbcOperations;
 import win.doyto.query.service.PageList;
 import win.doyto.query.sql.SqlAndArgs;
 import win.doyto.query.web.response.JsonBody;
+
+import java.util.regex.Pattern;
 
 /**
  * QLController
@@ -41,6 +44,12 @@ public class QLController {
 
     private R2dbcOperations r2dbcOperations;
 
+    private static final Pattern PTN_SORT = Pattern.compile(",(asc|desc)", Pattern.CASE_INSENSITIVE);
+
+    static String buildOrderBy(DoytoQuery pageQuery) {
+        return pageQuery.getSort() == null ? "" : " ORDER BY " + PTN_SORT.matcher(pageQuery.getSort()).replaceAll(" $1").replace(";", ", ");
+    }
+
     @SuppressWarnings("java:S1452")
     @PostMapping("DoytoQL")
     public Mono<?> execute(@RequestBody DoytoQLRequest request) {
@@ -51,6 +60,7 @@ public class QLController {
         PageQuery pageQuery = request.getPage();
 
         if (pageQuery != null) {
+            sql = sql + buildOrderBy(pageQuery);
             int offset = GlobalConfiguration.calcOffset(pageQuery);
             sql = GlobalConfiguration.dialect().buildPageSql(sql, pageQuery.getPageSize(), offset);
         }

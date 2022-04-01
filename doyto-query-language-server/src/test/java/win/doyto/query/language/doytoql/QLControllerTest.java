@@ -103,4 +103,18 @@ class QLControllerTest {
         ;
     }
 
+    @Test
+    void shouldSupportOrderBy() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("query");
+        doytoQLRequest.setFrom("t_user");
+
+        doytoQLRequest.setPage(PageQuery.builder().sort("id,desc").build());
+
+        postAndSuccess(doytoQLRequest)
+                .jsonPath("$.data.list.size()").isEqualTo(5)
+                .jsonPath("$.data.list[*].id").value(containsInRelativeOrder(5, 4, 3, 2, 1))
+        ;
+    }
+
 }
