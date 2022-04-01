@@ -23,8 +23,12 @@ import win.doyto.query.core.PageQuery;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
 
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 
 import static win.doyto.query.sql.BuildHelper.buildOrderBy;
+import static win.doyto.query.sql.Constant.EMPTY;
 import static win.doyto.query.sql.Constant.WHERE;
 
 /**
@@ -42,9 +46,7 @@ public class QLBuilder {
             LinkedHashMap<String, Object> filters = request.getFilters();
 
             if (filters != null && !filters.isEmpty()) {
-                String key = filters.keySet().stream().findFirst().get();
-                sql += WHERE + key + " = ?";
-                args.add(filters.get(key));
+                sql += buildWhere(filters, args);
             }
             PageQuery pageQuery = request.getPage();
             if (pageQuery != null) {
@@ -54,5 +56,14 @@ public class QLBuilder {
             }
             return sql;
         });
+    }
+
+    static String buildWhere(LinkedHashMap<String, Object> filters, List<Object> args) {
+        StringJoiner where = new StringJoiner(" AND ", WHERE, EMPTY);
+        for (Map.Entry<String, Object> entry : filters.entrySet()) {
+            where.add(entry.getKey() + " = ?");
+            args.add(entry.getValue());
+        }
+        return where.toString();
     }
 }
