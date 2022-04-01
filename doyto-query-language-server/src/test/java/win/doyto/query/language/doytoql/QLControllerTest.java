@@ -34,6 +34,7 @@ import win.doyto.query.r2dbc.R2dbcOperations;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 
 import static org.hamcrest.Matchers.containsInRelativeOrder;
@@ -114,6 +115,22 @@ class QLControllerTest {
         postAndSuccess(doytoQLRequest)
                 .jsonPath("$.data.list.size()").isEqualTo(5)
                 .jsonPath("$.data.list[*].id").value(containsInRelativeOrder(5, 4, 3, 2, 1))
+        ;
+    }
+
+    @Test
+    void shouldSupportFilters() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("query");
+        doytoQLRequest.setFrom("t_user");
+
+        LinkedHashMap<String, Object> filters = new LinkedHashMap<>();
+        filters.put("id", 1);
+        doytoQLRequest.setFilters(filters);
+
+        postAndSuccess(doytoQLRequest)
+                .jsonPath("$.data.list.size()").isEqualTo(1)
+                .jsonPath("$.data.list[*].id").value(containsInRelativeOrder(1))
         ;
     }
 

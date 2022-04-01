@@ -21,6 +21,8 @@ import lombok.Getter;
 import lombok.Setter;
 import win.doyto.query.core.PageQuery;
 
+import java.util.LinkedHashMap;
+
 /**
  * DoytoQLRequest
  *
@@ -32,4 +34,5 @@ public class DoytoQLRequest {
     private String operation;
     private String from;
     private PageQuery page;
+    private LinkedHashMap<String, Object> filters;
 }
