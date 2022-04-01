@@ -61,8 +61,9 @@ public class QLBuilder {
     static String buildWhere(LinkedHashMap<String, Object> filters, List<Object> args) {
         StringJoiner where = new StringJoiner(" AND ", WHERE, EMPTY);
         for (Map.Entry<String, Object> entry : filters.entrySet()) {
-            where.add(entry.getKey() + " = ?");
-            args.add(entry.getValue());
+            String key = entry.getKey();
+            String condition = SqlQuerySuffix.buildConditionForField(key, args, entry.getValue());
+            where.add(condition);
         }
         return where.toString();
     }

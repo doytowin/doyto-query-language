@@ -45,4 +45,15 @@ class QLBuilderTest {
         assertThat(args).containsExactly(1, true);
     }
 
+    @Test
+    void supportGt() {
+        String conditions = "{\"idGt\": 1}";
+        LinkedHashMap<String, Object> filters = BeanUtil.parse(conditions, new TypeReference<>() {});
+        List<Object> args = new ArrayList<>();
+        String sql = QLBuilder.buildWhere(filters, args);
+
+        assertThat(sql).isEqualTo(" WHERE id > ?");
+        assertThat(args).containsExactly(1);
+    }
+
 }
