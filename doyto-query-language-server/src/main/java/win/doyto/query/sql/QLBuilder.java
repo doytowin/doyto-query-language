@@ -28,8 +28,7 @@ import java.util.Map;
 import java.util.StringJoiner;
 
 import static win.doyto.query.sql.BuildHelper.buildOrderBy;
-import static win.doyto.query.sql.Constant.EMPTY;
-import static win.doyto.query.sql.Constant.WHERE;
+import static win.doyto.query.sql.Constant.*;
 
 /**
  * QLBuilder
@@ -43,11 +42,7 @@ public class QLBuilder {
         return SqlAndArgs.buildSqlWithArgs(args -> {
             String sql = "select * from " + table;
 
-            LinkedHashMap<String, Object> filters = request.getFilters();
-
-            if (filters != null && !filters.isEmpty()) {
-                sql += buildWhere(filters, args);
-            }
+            sql += buildWhere(request, args);
             PageQuery pageQuery = request.getPage();
             if (pageQuery != null) {
                 sql = sql + buildOrderBy(pageQuery);
@@ -58,6 +53,14 @@ public class QLBuilder {
         });
     }
 
+    private static String buildWhere(DoytoQLRequest request, List<Object> args) {
+        LinkedHashMap<String, Object> filters = request.getFilters();
+        if (filters == null || filters.isEmpty()) {
+            return EMPTY;
+        }
+        return buildWhere(filters, args);
+    }
+
     static String buildWhere(LinkedHashMap<String, Object> filters, List<Object> args) {
         StringJoiner where = new StringJoiner(" AND ", WHERE, EMPTY);
         for (Map.Entry<String, Object> entry : filters.entrySet()) {
@@ -66,5 +69,9 @@ public class QLBuilder {
             where.add(condition);
         }
         return where.toString();
+    }
+
+    public static SqlAndArgs buildDeleteSql(DoytoQLRequest request) {
+        return SqlAndArgs.buildSqlWithArgs(args -> DELETE_FROM + request.getDomain() + buildWhere(request, args));
     }
 }

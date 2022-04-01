@@ -79,7 +79,7 @@ class QLControllerTest {
     void requestShouldReturnOK() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("query");
-        doytoQLRequest.setFrom("t_user");
+        doytoQLRequest.setDomain("t_user");
 
         postAndSuccess(doytoQLRequest)
                 .jsonPath("$.data.total").isEqualTo(5)
@@ -93,7 +93,7 @@ class QLControllerTest {
     void shouldSupportPageQuery() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("query");
-        doytoQLRequest.setFrom("t_user");
+        doytoQLRequest.setDomain("t_user");
 
         doytoQLRequest.setPage(PageQuery.builder().pageNumber(2).pageSize(2).build());
 
@@ -108,7 +108,7 @@ class QLControllerTest {
     void shouldSupportOrderBy() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("query");
-        doytoQLRequest.setFrom("t_user");
+        doytoQLRequest.setDomain("t_user");
 
         doytoQLRequest.setPage(PageQuery.builder().sort("id,desc").build());
 
@@ -122,7 +122,7 @@ class QLControllerTest {
     void shouldSupportFilters() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("query");
-        doytoQLRequest.setFrom("t_user");
+        doytoQLRequest.setDomain("t_user");
 
         LinkedHashMap<String, Object> filters = new LinkedHashMap<>();
         filters.put("id", 1);
@@ -132,6 +132,19 @@ class QLControllerTest {
                 .jsonPath("$.data.list.size()").isEqualTo(1)
                 .jsonPath("$.data.list[*].id").value(containsInRelativeOrder(1))
         ;
+    }
+
+    @Test
+    void shouldSupportDelete() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("delete");
+        doytoQLRequest.setDomain("t_user");
+
+        LinkedHashMap<String, Object> filters = new LinkedHashMap<>();
+        filters.put("idLt", 3);
+        doytoQLRequest.setFilters(filters);
+
+        postAndSuccess(doytoQLRequest).jsonPath("$.data").isEqualTo(2);
     }
 
 }

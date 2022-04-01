@@ -32,7 +32,7 @@ import java.util.LinkedHashMap;
 @Setter
 public class DoytoQLRequest {
     private String operation;
-    private String from;
+    private String domain;
     private PageQuery page;
     private LinkedHashMap<String, Object> filters;
 }
