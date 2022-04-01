@@ -56,4 +56,19 @@ class QLBuilderTest {
         assertThat(args).containsExactly(1);
     }
 
+    @Test
+    void checkSupportedSuffix() {
+        String conditions = "{\"idEq\": 1, \"idNot\": 2, \"idGt\": 3, \"idGe\": 4, \"idLt\": 5, \"idLe\": 6, \"idIn\": [1,2,3], \"idNotIn\": [5,6]," +
+                "\"usernameContain\": \"test\", \"usernameStart\": \"test\", \"usernameNotLike\": \"test\", \"memoNull\": true, \"memoNotNull\": true}";
+        LinkedHashMap<String, Object> filters = BeanUtil.parse(conditions, new TypeReference<>() {});
+        List<Object> args = new ArrayList<>();
+        String sql = QLBuilder.buildWhere(filters, args);
+
+        assertThat(sql).isEqualTo(" WHERE id = ? AND id != ? AND id > ? AND id >= ? AND id < ? AND id <= ?" +
+                                          " AND id IN (?, ?, ?) AND id NOT IN (?, ?)" +
+                                          " AND username LIKE ? AND username LIKE ? AND username NOT LIKE ?" +
+                                          " AND memo IS NULL AND memo IS NOT NULL");
+        assertThat(args).containsExactly(1, 2, 3, 4, 5, 6, 1, 2, 3, 5, 6, "%test%", "test%", "%test%");
+    }
+
 }
