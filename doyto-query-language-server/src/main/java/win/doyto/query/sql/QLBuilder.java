@@ -38,9 +38,9 @@ import static win.doyto.query.sql.Constant.*;
 @UtilityClass
 public class QLBuilder {
 
-    public static SqlAndArgs buildQuerySql(DoytoQLRequest request, String table) {
+    public static SqlAndArgs buildQuerySql(DoytoQLRequest request) {
         return SqlAndArgs.buildSqlWithArgs(args -> {
-            String sql = "select * from " + table;
+            String sql = "select * from " + request.getDomain();
 
             sql += buildWhere(request, args);
             PageQuery pageQuery = request.getPage();
@@ -51,6 +51,11 @@ public class QLBuilder {
             }
             return sql;
         });
+    }
+
+    public static SqlAndArgs buildCountSql(DoytoQLRequest request) {
+        return SqlAndArgs.buildSqlWithArgs(args -> SELECT + COUNT +
+                FROM + request.getDomain() + buildWhere(request, args));
     }
 
     private static String buildWhere(DoytoQLRequest request, List<Object> args) {

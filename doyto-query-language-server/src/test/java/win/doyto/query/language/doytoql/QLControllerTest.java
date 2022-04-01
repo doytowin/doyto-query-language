@@ -129,6 +129,7 @@ class QLControllerTest {
         doytoQLRequest.setFilters(filters);
 
         postAndSuccess(doytoQLRequest)
+                .jsonPath("$.data.total").isEqualTo(1)
                 .jsonPath("$.data.list.size()").isEqualTo(1)
                 .jsonPath("$.data.list[*].id").value(containsInRelativeOrder(1))
         ;

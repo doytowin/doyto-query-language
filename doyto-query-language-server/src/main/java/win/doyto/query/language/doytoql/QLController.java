@@ -24,11 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import win.doyto.query.r2dbc.R2dbcOperations;
 import win.doyto.query.service.PageList;
-import win.doyto.query.sql.QLBuilder;
-import win.doyto.query.sql.SqlAndArgs;
 import win.doyto.query.web.response.JsonBody;
 
-import static win.doyto.query.sql.QLBuilder.buildQuerySql;
+import static win.doyto.query.sql.QLBuilder.*;
 
 /**
  * QLController
@@ -47,15 +45,13 @@ public class QLController {
     public Mono<?> execute(@RequestBody DoytoQLRequest request) {
 
         if (request.getOperation().equals("delete")) {
-            return r2dbcOperations.update(QLBuilder.buildDeleteSql(request));
+            return r2dbcOperations.update(buildDeleteSql(request));
         }
 
-        String table = request.getDomain();
-
         return r2dbcOperations
-                .query(buildQuerySql(request, table), new MapRowMapper())
+                .query(buildQuerySql(request), new MapRowMapper())
                 .collectList()
-                .zipWith(r2dbcOperations.count(new SqlAndArgs("select count(*) from " + table)))
+                .zipWith(r2dbcOperations.count(buildCountSql(request)))
                 .map(t -> new PageList<>(t.getT1(), t.getT2()));
     }
 }
