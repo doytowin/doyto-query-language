@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import win.doyto.query.config.GlobalConfiguration;
+import win.doyto.query.core.PageQuery;
 import win.doyto.query.r2dbc.R2dbcOperations;
 import win.doyto.query.service.PageList;
 import win.doyto.query.sql.SqlAndArgs;
@@ -44,9 +46,17 @@ public class QLController {
     public Mono<?> execute(@RequestBody DoytoQLRequest request) {
 
         String table = request.getFrom();
+        String sql = "select * from " + table;
+
+        PageQuery pageQuery = request.getPage();
+
+        if (pageQuery != null) {
+            int offset = GlobalConfiguration.calcOffset(pageQuery);
+            sql = GlobalConfiguration.dialect().buildPageSql(sql, pageQuery.getPageSize(), offset);
+        }
 
         return r2dbcOperations
-                .query(new SqlAndArgs("select * from " + table), new MapRowMapper())
+                .query(new SqlAndArgs(sql), new MapRowMapper())
                 .collectList()
                 .zipWith(r2dbcOperations.count(new SqlAndArgs("select count(*) from " + table)))
                 .map(t -> new PageList<>(t.getT1(), t.getT2()));

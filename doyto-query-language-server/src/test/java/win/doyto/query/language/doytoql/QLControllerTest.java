@@ -28,12 +28,15 @@ import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.reactive.function.BodyInserters;
+import win.doyto.query.core.PageQuery;
 import win.doyto.query.language.DoytoQLApplication;
 import win.doyto.query.r2dbc.R2dbcOperations;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
+
+import static org.hamcrest.Matchers.containsInRelativeOrder;
 
 /**
  * QLControllerTest
@@ -56,6 +59,17 @@ class QLControllerTest {
         r2dbcOperations.update(schema).block();
     }
 
+    private WebTestClient.BodyContentSpec postAndSuccess(DoytoQLRequest body) {
+        return webTestClient.post().uri("/DoytoQL/")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(BodyInserters.fromValue(body))
+                            .exchange()
+                            .expectStatus().isOk()
+                            .expectBody()
+                            .consumeWith(log())
+                            .jsonPath("$.success").isEqualTo(true);
+    }
+
     private Consumer<EntityExchangeResult<byte[]>> log() {
         return entityExchangeResult -> System.out.println(entityExchangeResult.toString());
     }
@@ -66,18 +80,26 @@ class QLControllerTest {
         doytoQLRequest.setOperation("query");
         doytoQLRequest.setFrom("t_user");
 
-        webTestClient.post().uri("/DoytoQL/")
-                     .contentType(MediaType.APPLICATION_JSON)
-                     .body(BodyInserters.fromValue(doytoQLRequest))
-                     .exchange()
-                     .expectStatus().isOk()
-                     .expectBody()
-                     .consumeWith(log())
-                     .jsonPath("$.success").isEqualTo(true)
-                     .jsonPath("$.data.total").isEqualTo(5)
-                     .jsonPath("$.data.list.size()").isEqualTo(5)
-                     .jsonPath("$.data.list[0].username").isEqualTo("f0rb")
-                     .jsonPath("$.data.list[1].username").isEqualTo("user2")
+        postAndSuccess(doytoQLRequest)
+                .jsonPath("$.data.total").isEqualTo(5)
+                .jsonPath("$.data.list.size()").isEqualTo(5)
+                .jsonPath("$.data.list[0].username").isEqualTo("f0rb")
+                .jsonPath("$.data.list[1].username").isEqualTo("user2")
+        ;
+    }
+
+    @Test
+    void shouldSupportPageQuery() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("query");
+        doytoQLRequest.setFrom("t_user");
+
+        doytoQLRequest.setPage(PageQuery.builder().pageNumber(2).pageSize(2).build());
+
+        postAndSuccess(doytoQLRequest)
+                .jsonPath("$.data.total").isEqualTo(5)
+                .jsonPath("$.data.list.size()").isEqualTo(2)
+                .jsonPath("$.data.list[*].id").value(containsInRelativeOrder(3, 4))
         ;
     }
 

@@ -19,6 +19,7 @@ package win.doyto.query.language.doytoql;
 
 import lombok.Getter;
 import lombok.Setter;
+import win.doyto.query.core.PageQuery;
 
 /**
  * DoytoQLRequest
@@ -30,4 +31,5 @@ import lombok.Setter;
 public class DoytoQLRequest {
     private String operation;
     private String from;
+    private PageQuery page;
 }
