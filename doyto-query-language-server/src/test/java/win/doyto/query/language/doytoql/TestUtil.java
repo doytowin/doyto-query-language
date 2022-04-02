@@ -18,6 +18,7 @@
 package win.doyto.query.language.doytoql;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * TestUtil
@@ -36,5 +37,21 @@ public class TestUtil {
         entity.put("user_level", "普通");
         entity.put("valid", false);
         return entity;
+    }
+
+    public static DoytoQLRequest buildUpdateRequest() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("update");
+        doytoQLRequest.setDomain("t_user");
+
+        LinkedHashMap<String, Object> entity = new LinkedHashMap<>();
+        entity.put("nickname", "kitty");
+        entity.put("valid", true);
+        doytoQLRequest.setData(List.of(entity));
+
+        LinkedHashMap<String, Object> filters = new LinkedHashMap<>();
+        filters.put("id", 1);
+        doytoQLRequest.setFilters(filters);
+        return doytoQLRequest;
     }
 }

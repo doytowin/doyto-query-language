@@ -104,18 +104,7 @@ class QLBuilderTest {
 
     @Test
     void supportUpdate() {
-        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
-        doytoQLRequest.setOperation("select");
-        doytoQLRequest.setDomain("t_user");
-
-        LinkedHashMap<String, Object> entity = new LinkedHashMap<>();
-        entity.put("nickname", "kitty");
-        entity.put("valid", true);
-        doytoQLRequest.setData(List.of(entity));
-
-        LinkedHashMap<String, Object> filters = new LinkedHashMap<>();
-        filters.put("id", 1);
-        doytoQLRequest.setFilters(filters);
+        DoytoQLRequest doytoQLRequest = TestUtil.buildUpdateRequest();
 
         SqlAndArgs sqlAndArgs = QLBuilder.buildUpdateSql(doytoQLRequest);
 

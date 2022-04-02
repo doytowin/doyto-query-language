@@ -43,17 +43,16 @@ public class QLController {
     @SuppressWarnings("java:S1452")
     @PostMapping("DoytoQL")
     public Mono<?> execute(@RequestBody DoytoQLRequest request) {
-
-        if (request.getOperation().equals("delete")) {
-            return r2dbcOperations.update(buildDeleteSql(request));
-        } else if (request.getOperation().equals("insert")) {
-            return r2dbcOperations.update(buildInsertSql(request));
-        }
-
-        return r2dbcOperations
-                .query(buildQuerySql(request), new MapRowMapper())
-                .collectList()
-                .zipWith(r2dbcOperations.count(buildCountSql(request)))
-                .map(t -> new PageList<>(t.getT1(), t.getT2()));
+        String operation = request.getOperation();
+        return switch (operation) {
+            case "delete" -> r2dbcOperations.update(buildDeleteSql(request));
+            case "insert" -> r2dbcOperations.update(buildInsertSql(request));
+            case "update" -> r2dbcOperations.update(buildUpdateSql(request));
+            default -> r2dbcOperations
+                    .query(buildQuerySql(request), new MapRowMapper())
+                    .collectList()
+                    .zipWith(r2dbcOperations.count(buildCountSql(request)))
+                    .map(t -> new PageList<>(t.getT1(), t.getT2()));
+        };
     }
 }

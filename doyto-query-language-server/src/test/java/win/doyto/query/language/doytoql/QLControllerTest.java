@@ -169,4 +169,10 @@ class QLControllerTest {
         postAndSuccess(doytoQLRequest).jsonPath("$.data").isEqualTo(2);
     }
 
+    @Test
+    void shouldSupportUpdate() {
+        postAndSuccess(TestUtil.buildUpdateRequest())
+                .jsonPath("$.data").isEqualTo(1);
+    }
+
 }
