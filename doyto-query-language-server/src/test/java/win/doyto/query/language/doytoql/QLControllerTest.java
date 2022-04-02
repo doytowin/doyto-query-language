@@ -154,17 +154,19 @@ class QLControllerTest {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("insert");
         doytoQLRequest.setDomain("t_user");
-        LinkedHashMap<String, Object> entity = new LinkedHashMap<>();
-        entity.put("username", "user6");
-        entity.put("mobile", "17778888886");
-        entity.put("email", "test6@qq.com");
-        entity.put("nickname", "测试6");
-        entity.put("password", "123456");
-        entity.put("user_level", "普通");
-        entity.put("valid", false);
-        doytoQLRequest.setData(List.of(entity));
+        doytoQLRequest.setData(List.of(TestUtil.buildEntity("6")));
 
         postAndSuccess(doytoQLRequest).jsonPath("$.data").isEqualTo(1);
+    }
+
+    @Test
+    void shouldSupportInsertMulti() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("insert");
+        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setData(List.of(TestUtil.buildEntity("6"), TestUtil.buildEntity("7")));
+
+        postAndSuccess(doytoQLRequest).jsonPath("$.data").isEqualTo(2);
     }
 
 }

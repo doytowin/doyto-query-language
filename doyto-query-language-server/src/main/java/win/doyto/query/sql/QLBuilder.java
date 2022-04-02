@@ -24,6 +24,7 @@ import win.doyto.query.util.CommonUtil;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static win.doyto.query.sql.BuildHelper.buildOrderBy;
@@ -77,12 +78,16 @@ public class QLBuilder {
 
     public static SqlAndArgs buildInsertSql(DoytoQLRequest request) {
         return SqlAndArgs.buildSqlWithArgs(argList -> {
-            LinkedHashMap<String, Object> data = request.getData().get(0);
-            String columns = data.keySet().stream().collect(CommonUtil.CLT_COMMA_WITH_PAREN);
-            String wildInsertValue = data.values().stream().map(i -> PLACE_HOLDER).collect(CommonUtil.CLT_COMMA_WITH_PAREN);
+            LinkedHashMap<String, Object> first = request.getData().get(0);
+            String columns = first.keySet().stream().collect(CommonUtil.CLT_COMMA_WITH_PAREN);
+            String wildInsertValue = first.values().stream().map(i -> PLACE_HOLDER).collect(CommonUtil.CLT_COMMA_WITH_PAREN);
 
-            argList.addAll(data.values());
-            return CrudBuilder.buildInsertSql(request.getDomain(), columns, wildInsertValue);
+            StringJoiner placeholders = new StringJoiner(SEPARATOR);
+            for (LinkedHashMap<String, Object> datum : request.getData()) {
+                argList.addAll(datum.values());
+                placeholders.add(wildInsertValue);
+            }
+            return CrudBuilder.buildInsertSql(request.getDomain(), columns, placeholders.toString());
         });
     }
 

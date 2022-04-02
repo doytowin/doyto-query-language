@@ -19,6 +19,8 @@ package win.doyto.query.sql;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;
+import win.doyto.query.language.doytoql.DoytoQLRequest;
+import win.doyto.query.language.doytoql.TestUtil;
 import win.doyto.query.util.BeanUtil;
 
 import java.util.ArrayList;
@@ -69,6 +71,20 @@ class QLBuilderTest {
                                           " AND username LIKE ? AND username LIKE ? AND username NOT LIKE ?" +
                                           " AND memo IS NULL AND memo IS NOT NULL");
         assertThat(args).containsExactly(1, 2, 3, 4, 5, 6, 1, 2, 3, 5, 6, "%test%", "test%", "%test%");
+    }
+
+    @Test
+    void supportInsertMulti() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("insert");
+        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setData(List.of(TestUtil.buildEntity("6"), TestUtil.buildEntity("7")));
+
+        SqlAndArgs sqlAndArgs = QLBuilder.buildInsertSql(doytoQLRequest);
+
+        assertThat(sqlAndArgs.getSql())
+                .isEqualTo("INSERT INTO t_user (username, mobile, email, nickname, password, user_level, valid) " +
+                                   "VALUES (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)");
     }
 
 }
