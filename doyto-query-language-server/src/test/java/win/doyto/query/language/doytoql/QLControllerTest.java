@@ -31,6 +31,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import win.doyto.query.core.PageQuery;
 import win.doyto.query.language.DoytoQLApplication;
 import win.doyto.query.r2dbc.R2dbcOperations;
+import win.doyto.query.web.response.ErrorCodeException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -38,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.containsInRelativeOrder;
 
 /**
@@ -173,6 +175,16 @@ class QLControllerTest {
     void shouldSupportUpdate() {
         postAndSuccess(TestUtil.buildUpdateRequest())
                 .jsonPath("$.data").isEqualTo(1);
+    }
+
+    @Test
+    void shouldProvideOperation() {
+        QLController qlController = new QLController(null);
+        DoytoQLRequest request = new DoytoQLRequest();
+
+        assertThatThrownBy(() -> qlController.execute(request))
+                .isInstanceOf(ErrorCodeException.class)
+                .hasMessage("OPERATION_SHOULD_NOT_BE_NULL");
     }
 
 }

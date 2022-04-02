@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import win.doyto.query.r2dbc.R2dbcOperations;
 import win.doyto.query.service.PageList;
+import win.doyto.query.web.response.ErrorCode;
 import win.doyto.query.web.response.JsonBody;
 
 import static win.doyto.query.sql.QLBuilder.*;
@@ -44,6 +45,7 @@ public class QLController {
     @PostMapping("DoytoQL")
     public Mono<?> execute(@RequestBody DoytoQLRequest request) {
         String operation = request.getOperation();
+        ErrorCode.assertNotNull(operation, QLErrorCode.OPERATION_SHOULD_NOT_BE_NULL);
         return switch (operation) {
             case "delete" -> r2dbcOperations.update(buildDeleteSql(request));
             case "insert" -> r2dbcOperations.update(buildInsertSql(request));
