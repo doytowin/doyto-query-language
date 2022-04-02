@@ -21,7 +21,9 @@ import lombok.experimental.UtilityClass;
 import win.doyto.query.config.GlobalConfiguration;
 import win.doyto.query.core.PageQuery;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
+import win.doyto.query.language.doytoql.QLErrorCode;
 import win.doyto.query.util.CommonUtil;
+import win.doyto.query.web.response.ErrorCode;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -98,7 +100,9 @@ public class QLBuilder {
 
     public static SqlAndArgs buildUpdateSql(DoytoQLRequest request) {
         return SqlAndArgs.buildSqlWithArgs(argList -> {
-            LinkedHashMap<String, Object> target = request.getData().get(0);
+            List<LinkedHashMap<String, Object>> data = request.getData();
+            ErrorCode.assertNotNull(data, QLErrorCode.DATA_SHOULD_NOT_BE_NULL);
+            LinkedHashMap<String, Object> target = data.get(0);
             String domain = request.getDomain();
             String setClause = readValueToArgList(target, argList);
             String whereClause = buildWhere(request, argList);

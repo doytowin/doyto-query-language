@@ -22,12 +22,14 @@ import org.junit.jupiter.api.Test;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
 import win.doyto.query.language.doytoql.TestUtil;
 import win.doyto.query.util.BeanUtil;
+import win.doyto.query.web.response.ErrorCodeException;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * QLBuilderTest
@@ -121,5 +123,13 @@ class QLBuilderTest {
                 .isEqualTo("UPDATE t_user SET nickname = ?, valid = ? WHERE id = ?");
         assertThat(sqlAndArgs.getArgs())
                 .containsExactly("kitty", true, 1);
+    }
+
+    @Test
+    void shouldFailWhenNoUpdateData() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        assertThatThrownBy(() -> QLBuilder.buildUpdateSql(doytoQLRequest))
+                .isInstanceOf(ErrorCodeException.class)
+                .hasMessage("DATA_SHOULD_NOT_BE_NULL");
     }
 }
