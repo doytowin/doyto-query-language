@@ -35,6 +35,7 @@ import win.doyto.query.r2dbc.R2dbcOperations;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.function.Consumer;
 
 import static org.hamcrest.Matchers.containsInRelativeOrder;
@@ -146,6 +147,24 @@ class QLControllerTest {
         doytoQLRequest.setFilters(filters);
 
         postAndSuccess(doytoQLRequest).jsonPath("$.data").isEqualTo(2);
+    }
+
+    @Test
+    void shouldSupportInsert() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("insert");
+        doytoQLRequest.setDomain("t_user");
+        LinkedHashMap<String, Object> entity = new LinkedHashMap<>();
+        entity.put("username", "user6");
+        entity.put("mobile", "17778888886");
+        entity.put("email", "test6@qq.com");
+        entity.put("nickname", "测试6");
+        entity.put("password", "123456");
+        entity.put("user_level", "普通");
+        entity.put("valid", false);
+        doytoQLRequest.setData(List.of(entity));
+
+        postAndSuccess(doytoQLRequest).jsonPath("$.data").isEqualTo(1);
     }
 
 }

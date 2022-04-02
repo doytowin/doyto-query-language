@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static win.doyto.query.sql.BuildHelper.buildOrderBy;
 import static win.doyto.query.sql.Constant.*;
@@ -79,4 +80,26 @@ public class QLBuilder {
     public static SqlAndArgs buildDeleteSql(DoytoQLRequest request) {
         return SqlAndArgs.buildSqlWithArgs(args -> DELETE_FROM + request.getDomain() + buildWhere(request, args));
     }
+
+    public static SqlAndArgs buildInsertSql(DoytoQLRequest request) {
+        return SqlAndArgs.buildSqlWithArgs(argList -> {
+            LinkedHashMap<String, Object> data = request.getData().get(0);
+            String columns = data.keySet().stream().collect(Collectors.joining(SEPARATOR, "(", ")"));
+            String wildInsertValue = data.values().stream().map(i -> PLACE_HOLDER).collect(Collectors.joining(SEPARATOR, "(", ")"));
+
+            argList.addAll(data.values());
+            return buildInsertSql(request.getDomain(), columns, wildInsertValue);
+        });
+    }
+
+    private static String buildInsertSql(String table, String columns, String fields) {
+        StringJoiner insertSql = new StringJoiner(SPACE);
+        insertSql.add("INSERT INTO");
+        insertSql.add(table);
+        insertSql.add(columns);
+        insertSql.add("VALUES");
+        insertSql.add(fields);
+        return insertSql.toString();
+    }
+
 }

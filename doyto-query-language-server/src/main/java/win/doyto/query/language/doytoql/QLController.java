@@ -46,6 +46,8 @@ public class QLController {
 
         if (request.getOperation().equals("delete")) {
             return r2dbcOperations.update(buildDeleteSql(request));
+        } else if (request.getOperation().equals("insert")) {
+            return r2dbcOperations.update(buildInsertSql(request));
         }
 
         return r2dbcOperations
