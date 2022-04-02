@@ -1,0 +1,3 @@
+logging:
+  level:
+    win.doyto.query.sql.SqlAndArgs: debug
