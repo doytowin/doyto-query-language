@@ -101,7 +101,10 @@ public class QLBuilder {
     public static SqlAndArgs buildUpdateSql(DoytoQLRequest request) {
         return SqlAndArgs.buildSqlWithArgs(argList -> {
             List<LinkedHashMap<String, Object>> data = request.getData();
+
             ErrorCode.assertNotNull(data, QLErrorCode.DATA_SHOULD_NOT_BE_NULL);
+            ErrorCode.assertFalse(data.isEmpty(), QLErrorCode.DATA_SHOULD_NOT_BE_EMPTY);
+
             LinkedHashMap<String, Object> target = data.get(0);
             String domain = request.getDomain();
             String setClause = readValueToArgList(target, argList);

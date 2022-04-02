@@ -132,4 +132,13 @@ class QLBuilderTest {
                 .isInstanceOf(ErrorCodeException.class)
                 .hasMessage("DATA_SHOULD_NOT_BE_NULL");
     }
+
+    @Test
+    void shouldFailWhenUpdateDataIsEmpty() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setData(List.of());
+        assertThatThrownBy(() -> QLBuilder.buildUpdateSql(doytoQLRequest))
+                .isInstanceOf(ErrorCodeException.class)
+                .hasMessage("DATA_SHOULD_NOT_BE_EMPTY");
+    }
 }
