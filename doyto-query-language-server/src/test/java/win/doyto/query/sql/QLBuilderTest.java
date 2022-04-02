@@ -99,4 +99,27 @@ class QLBuilderTest {
         assertThat(sqlAndArgs.getSql())
                 .isEqualTo("SELECT username, email, mobile FROM t_user");
     }
+
+    @Test
+    void supportUpdate() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("select");
+        doytoQLRequest.setDomain("t_user");
+
+        LinkedHashMap<String, Object> entity = new LinkedHashMap<>();
+        entity.put("nickname", "kitty");
+        entity.put("valid", true);
+        doytoQLRequest.setData(List.of(entity));
+
+        LinkedHashMap<String, Object> filters = new LinkedHashMap<>();
+        filters.put("id", 1);
+        doytoQLRequest.setFilters(filters);
+
+        SqlAndArgs sqlAndArgs = QLBuilder.buildUpdateSql(doytoQLRequest);
+
+        assertThat(sqlAndArgs.getSql())
+                .isEqualTo("UPDATE t_user SET nickname = ?, valid = ? WHERE id = ?");
+        assertThat(sqlAndArgs.getArgs())
+                .containsExactly("kitty", true, 1);
+    }
 }

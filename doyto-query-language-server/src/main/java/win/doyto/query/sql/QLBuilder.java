@@ -18,18 +18,21 @@
 package win.doyto.query.sql;
 
 import lombok.experimental.UtilityClass;
+import win.doyto.query.config.GlobalConfiguration;
 import win.doyto.query.core.PageQuery;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
 import win.doyto.query.util.CommonUtil;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static win.doyto.query.sql.BuildHelper.buildOrderBy;
 import static win.doyto.query.sql.BuildHelper.buildPaging;
 import static win.doyto.query.sql.Constant.*;
+import static win.doyto.query.sql.QueryBuilder.EQUALS_PLACE_HOLDER;
 
 /**
  * QLBuilder
@@ -93,4 +96,23 @@ public class QLBuilder {
         });
     }
 
+    public static SqlAndArgs buildUpdateSql(DoytoQLRequest request) {
+        return SqlAndArgs.buildSqlWithArgs(argList -> {
+            LinkedHashMap<String, Object> target = request.getData().get(0);
+            String domain = request.getDomain();
+            String setClause = readValueToArgList(target, argList);
+            String whereClause = buildWhere(request, argList);
+            return CrudBuilder.buildUpdateSql(domain, setClause) + whereClause;
+        });
+    }
+
+    private static String readValueToArgList(LinkedHashMap<String, Object> target, List<Object> argList) {
+        StringJoiner setClauses = new StringJoiner(SEPARATOR);
+        for (Map.Entry<String, Object> entry : target.entrySet()) {
+            String column = GlobalConfiguration.dialect().wrapLabel(entry.getKey());
+            setClauses.add(column + EQUALS_PLACE_HOLDER);
+            argList.add(entry.getValue());
+        }
+        return setClauses.toString();
+    }
 }
