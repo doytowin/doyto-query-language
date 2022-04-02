@@ -87,4 +87,16 @@ class QLBuilderTest {
                                    "VALUES (?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?)");
     }
 
+    @Test
+    void supportQuerySpecifiedColumns() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("select");
+        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setColumns(List.of("username", "email", "mobile"));
+
+        SqlAndArgs sqlAndArgs = QLBuilder.buildQuerySql(doytoQLRequest);
+
+        assertThat(sqlAndArgs.getSql())
+                .isEqualTo("SELECT username, email, mobile FROM t_user");
+    }
 }

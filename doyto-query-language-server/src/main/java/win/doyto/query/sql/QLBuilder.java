@@ -41,7 +41,9 @@ public class QLBuilder {
 
     public static SqlAndArgs buildQuerySql(DoytoQLRequest request) {
         return SqlAndArgs.buildSqlWithArgs(args -> {
-            String sql = "select * from " + request.getDomain();
+            List<String> columns = request.getColumns();
+            String columnStr = columns != null ? String.join(SEPARATOR, columns) : "*";
+            String sql = SELECT + columnStr + FROM + request.getDomain();
 
             sql += buildWhere(request, args);
             PageQuery pageQuery = request.getPage();
