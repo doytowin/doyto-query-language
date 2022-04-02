@@ -106,6 +106,8 @@ public class QLBuilder {
             ErrorCode.assertFalse(data.isEmpty(), QLErrorCode.DATA_SHOULD_NOT_BE_EMPTY);
 
             LinkedHashMap<String, Object> target = data.get(0);
+            ErrorCode.assertFalse(target.isEmpty(), QLErrorCode.DATA_SHOULD_CONTAIN_AT_LEAST_ONE_FIELD);
+
             String domain = request.getDomain();
             String setClause = readValueToArgList(target, argList);
             String whereClause = buildWhere(request, argList);

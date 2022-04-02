@@ -141,4 +141,13 @@ class QLBuilderTest {
                 .isInstanceOf(ErrorCodeException.class)
                 .hasMessage("DATA_SHOULD_NOT_BE_EMPTY");
     }
+
+    @Test
+    void shouldFailWhenUpdateDataContainsNoFields() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setData(List.of(new LinkedHashMap<>()));
+        assertThatThrownBy(() -> QLBuilder.buildUpdateSql(doytoQLRequest))
+                .isInstanceOf(ErrorCodeException.class)
+                .hasMessage("DATA_SHOULD_CONTAIN_AT_LEAST_ONE_FIELD");
+    }
 }
