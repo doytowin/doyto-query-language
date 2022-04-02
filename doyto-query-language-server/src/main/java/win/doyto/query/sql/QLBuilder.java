@@ -18,17 +18,16 @@
 package win.doyto.query.sql;
 
 import lombok.experimental.UtilityClass;
-import win.doyto.query.config.GlobalConfiguration;
 import win.doyto.query.core.PageQuery;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
+import win.doyto.query.util.CommonUtil;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static win.doyto.query.sql.BuildHelper.buildOrderBy;
+import static win.doyto.query.sql.BuildHelper.buildPaging;
 import static win.doyto.query.sql.Constant.*;
 
 /**
@@ -47,8 +46,7 @@ public class QLBuilder {
             PageQuery pageQuery = request.getPage();
             if (pageQuery != null) {
                 sql = sql + buildOrderBy(pageQuery);
-                int offset = GlobalConfiguration.calcOffset(pageQuery);
-                sql = GlobalConfiguration.dialect().buildPageSql(sql, pageQuery.getPageSize(), offset);
+                sql = buildPaging(sql, pageQuery);
             }
             return sql;
         });
@@ -68,13 +66,9 @@ public class QLBuilder {
     }
 
     static String buildWhere(LinkedHashMap<String, Object> filters, List<Object> args) {
-        StringJoiner where = new StringJoiner(" AND ", WHERE, EMPTY);
-        for (Map.Entry<String, Object> entry : filters.entrySet()) {
-            String key = entry.getKey();
-            String condition = SqlQuerySuffix.buildConditionForField(key, args, entry.getValue());
-            where.add(condition);
-        }
-        return where.toString();
+        return filters.entrySet().stream()
+                      .map(e -> SqlQuerySuffix.buildConditionForField(e.getKey(), args, e.getValue()))
+                      .collect(Collectors.joining(" AND ", WHERE, EMPTY));
     }
 
     public static SqlAndArgs buildDeleteSql(DoytoQLRequest request) {
@@ -84,22 +78,12 @@ public class QLBuilder {
     public static SqlAndArgs buildInsertSql(DoytoQLRequest request) {
         return SqlAndArgs.buildSqlWithArgs(argList -> {
             LinkedHashMap<String, Object> data = request.getData().get(0);
-            String columns = data.keySet().stream().collect(Collectors.joining(SEPARATOR, "(", ")"));
-            String wildInsertValue = data.values().stream().map(i -> PLACE_HOLDER).collect(Collectors.joining(SEPARATOR, "(", ")"));
+            String columns = data.keySet().stream().collect(CommonUtil.CLT_COMMA_WITH_PAREN);
+            String wildInsertValue = data.values().stream().map(i -> PLACE_HOLDER).collect(CommonUtil.CLT_COMMA_WITH_PAREN);
 
             argList.addAll(data.values());
-            return buildInsertSql(request.getDomain(), columns, wildInsertValue);
+            return CrudBuilder.buildInsertSql(request.getDomain(), columns, wildInsertValue);
         });
-    }
-
-    private static String buildInsertSql(String table, String columns, String fields) {
-        StringJoiner insertSql = new StringJoiner(SPACE);
-        insertSql.add("INSERT INTO");
-        insertSql.add(table);
-        insertSql.add(columns);
-        insertSql.add("VALUES");
-        insertSql.add(fields);
-        return insertSql.toString();
     }
 
 }
