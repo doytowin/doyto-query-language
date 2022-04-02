@@ -51,6 +51,7 @@ import static org.hamcrest.Matchers.containsInRelativeOrder;
 @AutoConfigureWebTestClient
 class QLControllerTest {
 
+    private static final String DOMAIN_USER = "t_user";
     @Resource
     protected WebTestClient webTestClient;
 
@@ -82,7 +83,7 @@ class QLControllerTest {
     void requestShouldReturnOK() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("query");
-        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setDomain(DOMAIN_USER);
 
         postAndSuccess(doytoQLRequest)
                 .jsonPath("$.data.total").isEqualTo(5)
@@ -96,7 +97,7 @@ class QLControllerTest {
     void shouldSupportPageQuery() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("query");
-        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setDomain(DOMAIN_USER);
 
         doytoQLRequest.setPage(PageQuery.builder().pageNumber(2).pageSize(2).build());
 
@@ -111,7 +112,7 @@ class QLControllerTest {
     void shouldSupportOrderBy() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("query");
-        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setDomain(DOMAIN_USER);
 
         doytoQLRequest.setPage(PageQuery.builder().sort("id,desc").build());
 
@@ -125,7 +126,7 @@ class QLControllerTest {
     void shouldSupportFilters() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("query");
-        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setDomain(DOMAIN_USER);
 
         LinkedHashMap<String, Object> filters = new LinkedHashMap<>();
         filters.put("id", 1);
@@ -142,7 +143,7 @@ class QLControllerTest {
     void shouldSupportDelete() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("delete");
-        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setDomain(DOMAIN_USER);
 
         LinkedHashMap<String, Object> filters = new LinkedHashMap<>();
         filters.put("idLt", 3);
@@ -155,7 +156,7 @@ class QLControllerTest {
     void shouldSupportInsert() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("insert");
-        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setDomain(DOMAIN_USER);
         doytoQLRequest.setData(List.of(TestUtil.buildEntity("6")));
 
         postAndSuccess(doytoQLRequest).jsonPath("$.data").isEqualTo(1);
@@ -165,7 +166,7 @@ class QLControllerTest {
     void shouldSupportInsertMulti() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("insert");
-        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setDomain(DOMAIN_USER);
         doytoQLRequest.setData(List.of(TestUtil.buildEntity("6"), TestUtil.buildEntity("7")));
 
         postAndSuccess(doytoQLRequest).jsonPath("$.data").isEqualTo(2);
@@ -196,6 +197,18 @@ class QLControllerTest {
         assertThatThrownBy(() -> qlController.execute(request))
                 .isInstanceOf(ErrorCodeException.class)
                 .hasMessage("DOMAIN_SHOULD_NOT_BE_NULL");
+    }
+
+    @Test
+    void shouldProvideSupportedOperation() {
+        QLController qlController = new QLController(null);
+        DoytoQLRequest request = new DoytoQLRequest();
+        request.setOperation("unknown");
+        request.setDomain(DOMAIN_USER);
+
+        assertThatThrownBy(() -> qlController.execute(request))
+                .isInstanceOf(ErrorCodeException.class)
+                .hasMessage("OPERATION_NOT_SUPPORTED");
     }
 
 }

@@ -31,6 +31,7 @@ import win.doyto.query.web.response.ErrorCode;
 public enum QLErrorCode implements ErrorCode {
     SUCCESS,
     OPERATION_SHOULD_NOT_BE_NULL(1000),
+    OPERATION_NOT_SUPPORTED,
     DOMAIN_SHOULD_NOT_BE_NULL,
     DATA_SHOULD_NOT_BE_NULL,
     DATA_SHOULD_NOT_BE_EMPTY,

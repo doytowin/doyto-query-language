@@ -25,6 +25,7 @@ import reactor.core.publisher.Mono;
 import win.doyto.query.r2dbc.R2dbcOperations;
 import win.doyto.query.service.PageList;
 import win.doyto.query.web.response.ErrorCode;
+import win.doyto.query.web.response.ErrorCodeException;
 import win.doyto.query.web.response.JsonBody;
 
 import static win.doyto.query.sql.QLBuilder.*;
@@ -51,11 +52,12 @@ public class QLController {
             case "delete" -> r2dbcOperations.update(buildDeleteSql(request));
             case "insert" -> r2dbcOperations.update(buildInsertSql(request));
             case "update" -> r2dbcOperations.update(buildUpdateSql(request));
-            default -> r2dbcOperations
+            case "query" -> r2dbcOperations
                     .query(buildQuerySql(request), new MapRowMapper())
                     .collectList()
                     .zipWith(r2dbcOperations.count(buildCountSql(request)))
                     .map(t -> new PageList<>(t.getT1(), t.getT2()));
+            default -> throw new ErrorCodeException(QLErrorCode.OPERATION_NOT_SUPPORTED);
         };
     }
 }
