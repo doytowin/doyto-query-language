@@ -46,6 +46,7 @@ public class QLController {
     public Mono<?> execute(@RequestBody DoytoQLRequest request) {
         String operation = request.getOperation();
         ErrorCode.assertNotNull(operation, QLErrorCode.OPERATION_SHOULD_NOT_BE_NULL);
+        ErrorCode.assertNotNull(request.getDomain(), QLErrorCode.DOMAIN_SHOULD_NOT_BE_NULL);
         return switch (operation) {
             case "delete" -> r2dbcOperations.update(buildDeleteSql(request));
             case "insert" -> r2dbcOperations.update(buildInsertSql(request));

@@ -187,4 +187,15 @@ class QLControllerTest {
                 .hasMessage("OPERATION_SHOULD_NOT_BE_NULL");
     }
 
+    @Test
+    void shouldProvideDomain() {
+        QLController qlController = new QLController(null);
+        DoytoQLRequest request = new DoytoQLRequest();
+        request.setOperation("query");
+
+        assertThatThrownBy(() -> qlController.execute(request))
+                .isInstanceOf(ErrorCodeException.class)
+                .hasMessage("DOMAIN_SHOULD_NOT_BE_NULL");
+    }
+
 }
