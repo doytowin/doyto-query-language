@@ -29,12 +29,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static win.doyto.query.sql.BuildHelper.buildOrderBy;
 import static win.doyto.query.sql.BuildHelper.buildPaging;
 import static win.doyto.query.sql.Constant.*;
 import static win.doyto.query.sql.QueryBuilder.EQUALS_PLACE_HOLDER;
+import static win.doyto.query.sql.SqlQuerySuffix.buildConditionForField;
 
 /**
  * QLBuilder
@@ -43,6 +45,9 @@ import static win.doyto.query.sql.QueryBuilder.EQUALS_PLACE_HOLDER;
  */
 @UtilityClass
 public class QLBuilder {
+
+    private static final Collector<CharSequence, ?, String> COLLECTOR_WHERE = Collectors.joining(" AND ", WHERE, EMPTY);
+    private static final Collector<CharSequence, ?, String> COLLECTOR_OR = Collectors.joining(SPACE_OR, "(", ")");
 
     public static SqlAndArgs buildQuerySql(DoytoQLRequest request) {
         return SqlAndArgs.buildSqlWithArgs(args -> {
@@ -75,8 +80,19 @@ public class QLBuilder {
 
     static String buildWhere(LinkedHashMap<String, Object> filters, List<Object> args) {
         return filters.entrySet().stream()
-                      .map(e -> SqlQuerySuffix.buildConditionForField(e.getKey(), args, e.getValue()))
-                      .collect(Collectors.joining(" AND ", WHERE, EMPTY));
+                      .map(e -> {
+                          if (e.getKey().endsWith("Or")) {
+                              return buildConditionForOr(args, (LinkedHashMap<String, Object>) e.getValue());
+                          }
+                          return buildConditionForField(e.getKey(), args, e.getValue());
+                      })
+                      .collect(COLLECTOR_WHERE);
+    }
+
+    private static String buildConditionForOr(List<Object> args, LinkedHashMap<String, Object> orConditions) {
+        return orConditions.entrySet().stream()
+                           .map(orCondition -> buildConditionForField(orCondition.getKey(), args, orCondition.getValue()))
+                           .collect(COLLECTOR_OR);
     }
 
     public static SqlAndArgs buildDeleteSql(DoytoQLRequest request) {

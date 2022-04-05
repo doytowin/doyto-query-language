@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -211,4 +212,21 @@ class QLControllerTest {
                 .hasMessage("OPERATION_NOT_SUPPORTED");
     }
 
+
+    @Test
+    void supportOrQuery() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("query");
+        doytoQLRequest.setDomain("t_user");
+
+        LinkedHashMap<String, Object> filters = new LinkedHashMap<>();
+        filters.put("accountOr", Map.of("username", "f0rb", "email", "f0rb"));
+        filters.put("valid", true);
+        doytoQLRequest.setFilters(filters);
+
+
+        postAndSuccess(doytoQLRequest)
+                .jsonPath("$.data.total").isEqualTo(1)
+                .jsonPath("$.data.list[0].id").isEqualTo(1);
+    }
 }
