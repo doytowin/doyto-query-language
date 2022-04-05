@@ -78,13 +78,16 @@ public class QLBuilder {
         return buildWhere(filters, args);
     }
 
+    @SuppressWarnings("unchecked")
     static String buildWhere(LinkedHashMap<String, Object> filters, List<Object> args) {
         return filters.entrySet().stream()
                       .map(e -> {
                           if (e.getKey().endsWith("Or")) {
                               Object value = e.getValue();
                               ErrorCode.assertTrue(value instanceof LinkedHashMap, QLErrorCode.TYPE_OF_OR_FILTER_SHOULD_BE_OBJECT);
-                              return buildConditionForOr(args, (LinkedHashMap<String, Object>) value);
+                              LinkedHashMap<String, Object> orConditions = (LinkedHashMap<String, Object>) value;
+                              ErrorCode.assertFalse(orConditions.isEmpty(), QLErrorCode.OR_FILTER_SHOULD_CONTAIN_AT_LEAST_ONE_CONDITION);
+                              return buildConditionForOr(args, orConditions);
                           }
                           return buildConditionForField(e.getKey(), args, e.getValue());
                       })
