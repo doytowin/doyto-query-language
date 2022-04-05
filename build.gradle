@@ -1,14 +1,27 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.3"
+    }
+}
+
 allprojects {
     group = 'win.doyto'
     version = '0.0.1-SNAPSHOT'
     apply plugin: 'idea'
     apply plugin: 'java'
+    apply plugin: "jacoco"
 
     repositories {
         mavenLocal()
         mavenCentral()
         maven { url 'https://repo.spring.io/milestone' }
         maven { url 'https://repo.spring.io/snapshot' }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     }
 
     tasks.named('test') {
@@ -18,4 +31,59 @@ allprojects {
 
 subprojects {
     sourceCompatibility = '17'
+
+    apply plugin: "org.sonarqube"
+
+    sonarqube {
+        properties {
+            property "sonar.projectKey", "win.doyto:doyto-query-language-parent"
+            property "sonar.organization", "f0rb-github"
+            property "sonar.host.url", "https://sonarcloud.io"
+            property "sonar.coverage.jacoco.xmlReportPaths", "$rootProject.buildDir/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
+        }
+    }
+
+    tasks.withType(Test) {
+        // redirect all coverage data to one file
+        jacoco {
+            destinationFile = file("$rootProject.buildDir/jacoco/test.exec")
+        }
+    }
+}
+
+// refer to: https://github.com/SonarSource/sonar-scanning-examples/blob/master/sonarqube-scanner-gradle/gradle-multimodule-coverage/build.gradle
+tasks.register("codeCoverageReport", JacocoReport) {
+    // If a subproject applies the 'jacoco' plugin, add the result it to the report
+    subprojects { subproject ->
+        subproject.plugins.withType(JacocoPlugin).configureEach {
+            subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).configureEach { testTask ->
+                //the jacoco extension may be disabled for some projects
+                if (testTask.extensions.getByType(JacocoTaskExtension).isEnabled()) {
+                    sourceSets subproject.sourceSets.main
+                    executionData(testTask)
+                } else {
+                    logger.warn('Jacoco extension is disabled for test task \'{}\' in project \'{}\'. this test task will be excluded from jacoco report.', testTask.getName(), subproject.getName())
+                }
+            }
+
+            // To automatically run `test` every time `./gradlew codeCoverageReport` is called,
+            // you may want to set up a task dependency between them as shown below.
+            // Note that this requires the `test` tasks to be resolved eagerly (see `forEach`) which
+            // may have a negative effect on the configuration time of your build.
+            subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).forEach {
+                rootProject.tasks.codeCoverageReport.dependsOn(it)
+            }
+        }
+    }
+
+    // enable the different report types (html, xml, csv)
+    reports {
+        // xml is usually used to integrate code coverage with
+        // other tools like SonarQube, Coveralls or Codecov
+        xml.enabled true
+
+        // HTML reports can be used to see code coverage
+        // without any external tools
+        html.enabled true
+    }
 }
