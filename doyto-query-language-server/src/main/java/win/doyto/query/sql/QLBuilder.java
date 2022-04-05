@@ -82,7 +82,9 @@ public class QLBuilder {
         return filters.entrySet().stream()
                       .map(e -> {
                           if (e.getKey().endsWith("Or")) {
-                              return buildConditionForOr(args, (LinkedHashMap<String, Object>) e.getValue());
+                              Object value = e.getValue();
+                              ErrorCode.assertTrue(value instanceof LinkedHashMap, QLErrorCode.TYPE_OF_OR_FILTER_SHOULD_BE_OBJECT);
+                              return buildConditionForOr(args, (LinkedHashMap<String, Object>) value);
                           }
                           return buildConditionForField(e.getKey(), args, e.getValue());
                       })

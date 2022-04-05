@@ -139,4 +139,14 @@ class QLBuilderTest {
                 .isInstanceOf(ErrorCodeException.class)
                 .hasMessage("DATA_SHOULD_CONTAIN_AT_LEAST_ONE_FIELD");
     }
+
+    @Test
+    void shouldFailWhenOrFieldIsNotMap() {
+        LinkedHashMap<String, Object> filters = new LinkedHashMap<>();
+        filters.put("accountOr", "f0rb");
+
+        assertThatThrownBy(() -> QLBuilder.buildWhere(filters, null))
+                .isInstanceOf(ErrorCodeException.class)
+                .hasMessage("TYPE_OF_OR_FILTER_SHOULD_BE_OBJECT");
+    }
 }

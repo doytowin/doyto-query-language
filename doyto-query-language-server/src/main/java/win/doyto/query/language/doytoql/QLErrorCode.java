@@ -36,6 +36,7 @@ public enum QLErrorCode implements ErrorCode {
     DATA_SHOULD_NOT_BE_NULL,
     DATA_SHOULD_NOT_BE_EMPTY,
     DATA_SHOULD_CONTAIN_AT_LEAST_ONE_FIELD,
+    TYPE_OF_OR_FILTER_SHOULD_BE_OBJECT,
     ;
 
     private final Integer code;
