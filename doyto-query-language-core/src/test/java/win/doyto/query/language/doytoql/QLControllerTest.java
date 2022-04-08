@@ -27,8 +27,8 @@ import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.reactive.function.BodyInserters;
+import win.doyto.query.DoytoQLApplication;
 import win.doyto.query.core.PageQuery;
-import win.doyto.query.language.DoytoQLApplication;
 import win.doyto.query.r2dbc.R2dbcOperations;
 import win.doyto.query.web.response.ErrorCodeException;
 
