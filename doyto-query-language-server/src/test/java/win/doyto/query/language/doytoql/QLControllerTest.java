@@ -17,7 +17,6 @@
 
 package win.doyto.query.language.doytoql;
 
-import jakarta.annotation.Resource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +52,7 @@ import static org.hamcrest.Matchers.containsInRelativeOrder;
 class QLControllerTest {
 
     private static final String DOMAIN_USER = "t_user";
-    @Resource
+    @Autowired
     protected WebTestClient webTestClient;
 
     @BeforeEach
