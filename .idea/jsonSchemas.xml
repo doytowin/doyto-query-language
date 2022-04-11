@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JsonSchemaMappingsProjectConfiguration">
+    <state>
+      <map>
+        <entry key="DoytoQL 2">
+          <value>
+            <SchemaInfo>
+              <option name="name" value="DoytoQL 2" />
+              <option name="relativePathToSchema" value="https://raw.githubusercontent.com/doytowin/doyto-query-language/main/schema/doytoql.schema.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="schema/samples/delete.json" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="schema/samples/insert.json" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="schema/samples/query.json" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="schema/samples/update.json" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+      </map>
+    </state>
+  </component>
+</project>

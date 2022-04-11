@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/doytowin/doyto-query-language/tree/main/schema/doytoql.schema.json",
+  "$id": "https://raw.githubusercontent.com/doytowin/doyto-query-language/main/schema/doytoql.schema.json",
   "title": "Doyto QL schema",
   "description": "The schema of POST request for Doyto Query Language",
   "type": "object",
