@@ -1,0 +1,13 @@
+{
+  "operation": "insert",
+  "domain": "t_user",
+  "data": {
+    "username": "user6",
+    "email": "test6@qq.com",
+    "mobile": "17778888886",
+    "nickname": "测试6",
+    "password": "123456",
+    "user_level": "普通",
+    "valid": true
+  }
+}

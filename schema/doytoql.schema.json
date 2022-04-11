@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/doytowin/doyto-query-language/tree/main/schema/doytoql.schema.json",
+  "title": "Doyto QL schema",
+  "description": "The schema of POST request for Doyto Query Language",
+  "type": "object",
+  "properties": {
+    "operation": {
+      "type": "string",
+      "pattern": "^(query|insert|update|delete)$"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "page": {
+      "type": "object",
+      "properties": {
+        "pageNumber": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pageSize": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "sort": {
+          "type": "string",
+          "pattern": "(\\w+,(asc|desc)|field\\(\\w+(,[\\w']+)++\\))(;(\\w+,(asc|desc)|field\\(\\w+(,[\\w']+)++\\)))*"
+        }
+      }
+    },
+    "data": {
+      "type": "array|object"
+    },
+    "columns": {
+      "type": "array"
+    },
+    "filters": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "operation",
+    "domain"
+  ]
+}

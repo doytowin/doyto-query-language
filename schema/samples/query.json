@@ -1,0 +1,17 @@
+{
+  "operation": "query",
+  "domain": "t_user",
+  "columns": [
+    "id",
+    "username",
+    "user_level as userLevel"
+  ],
+  "filters": {
+    "userLevel": "普通"
+  },
+  "page": {
+    "pageNumber": 2,
+    "pageSize": 2,
+    "sort": "id,desc"
+  }
+}

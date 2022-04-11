@@ -1,0 +1,10 @@
+{
+  "operation": "update",
+  "domain": "t_user",
+  "filters": {
+    "id": 2
+  },
+  "data": {
+    "username": "new name"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "operation": "delete",
+  "domain": "t_user",
+  "filters": {
+    "id": 1
+  }
+}
