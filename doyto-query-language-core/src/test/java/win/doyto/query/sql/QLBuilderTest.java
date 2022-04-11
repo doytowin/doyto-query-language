@@ -159,4 +159,12 @@ class QLBuilderTest {
                 .isInstanceOf(ErrorCodeException.class)
                 .hasMessage("OR_FILTER_SHOULD_CONTAIN_AT_LEAST_ONE_CONDITION");
     }
+
+    @Test
+    void shouldReturnEmptyWhenFiltersIsEmpty() {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setFilters(new LinkedHashMap<>());
+        String where = QLBuilder.buildWhere(doytoQLRequest, List.of());
+        assertThat(where).isEmpty();
+    }
 }

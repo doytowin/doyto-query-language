@@ -70,7 +70,7 @@ public class QLBuilder {
                 FROM + request.getDomain() + buildWhere(request, args));
     }
 
-    private static String buildWhere(DoytoQLRequest request, List<Object> args) {
+    static String buildWhere(DoytoQLRequest request, List<Object> args) {
         LinkedHashMap<String, Object> filters = request.getFilters();
         if (filters == null || filters.isEmpty()) {
             return EMPTY;
