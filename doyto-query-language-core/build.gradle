@@ -21,6 +21,7 @@ configurations {
 dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework:spring-r2dbc'
     implementation 'io.r2dbc:r2dbc-spi:0.9.1.RELEASE'
     implementation 'io.r2dbc:r2dbc-pool:0.9.0.RELEASE'
     implementation 'win.doyto:doyto-query-sql:0.3.1-SNAPSHOT'

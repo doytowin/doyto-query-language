@@ -18,6 +18,7 @@
 package win.doyto.query.language.doytoql;
 
 import lombok.AllArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,6 +45,7 @@ public class QLController {
 
     @SuppressWarnings("java:S1452")
     @PostMapping("DoytoQL")
+    @Transactional
     public Mono<?> execute(@RequestBody DoytoQLRequest request) {
         String operation = request.getOperation();
         ErrorCode.assertNotNull(operation, QLErrorCode.OPERATION_SHOULD_NOT_BE_NULL);

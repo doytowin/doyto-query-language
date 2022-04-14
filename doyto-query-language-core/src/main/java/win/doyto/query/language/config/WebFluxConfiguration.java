@@ -20,6 +20,7 @@ package win.doyto.query.language.config;
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import win.doyto.query.r2dbc.R2dbcOperations;
 import win.doyto.query.r2dbc.R2dbcTemplate;
 import win.doyto.query.reactive.webflux.config.WebFluxConfigurerAdapter;
@@ -30,6 +31,7 @@ import win.doyto.query.reactive.webflux.config.WebFluxConfigurerAdapter;
  * @author f0rb on 2022-03-31
  */
 @Configuration
+@EnableTransactionManagement
 public class WebFluxConfiguration extends WebFluxConfigurerAdapter {
 
     @Bean
