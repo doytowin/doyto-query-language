@@ -22,6 +22,14 @@ allprojects {
         maven { url 'https://repo.spring.io/milestone' }
         maven { url 'https://repo.spring.io/snapshot' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+
+        maven {
+            url = uri("https://maven.pkg.github.com/doytowin/*")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GH_USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 
     tasks.named('test') {
