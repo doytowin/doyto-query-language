@@ -17,27 +17,14 @@
 
 package win.doyto.query.language.doytoql;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.EntityExchangeResult;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.util.StreamUtils;
-import org.springframework.web.reactive.function.BodyInserters;
-import win.doyto.query.DoytoQLApplication;
+import win.doyto.query.DoytoQLApplicationTest;
 import win.doyto.query.core.PageQuery;
-import win.doyto.query.r2dbc.R2dbcOperations;
 import win.doyto.query.web.response.ErrorCodeException;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.containsInRelativeOrder;
@@ -47,37 +34,7 @@ import static org.hamcrest.Matchers.containsInRelativeOrder;
  *
  * @author f0rb on 2022-03-31
  */
-@SpringBootTest(classes = DoytoQLApplication.class)
-@AutoConfigureWebTestClient
-class QLControllerTest {
-
-    private static final String DOMAIN_USER = "t_user";
-    @Autowired
-    protected WebTestClient webTestClient;
-
-    @BeforeEach
-    void setUp(@Autowired R2dbcOperations r2dbcOperations) throws IOException {
-        var schema = StreamUtils.copyToString(
-                this.getClass().getResourceAsStream("/schema.sql"),
-                Charset.defaultCharset()
-        );
-        r2dbcOperations.update(schema).block();
-    }
-
-    private WebTestClient.BodyContentSpec postAndSuccess(DoytoQLRequest body) {
-        return webTestClient.post().uri("/DoytoQL/")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(BodyInserters.fromValue(body))
-                            .exchange()
-                            .expectStatus().isOk()
-                            .expectBody()
-                            .consumeWith(log())
-                            .jsonPath("$.success").isEqualTo(true);
-    }
-
-    private Consumer<EntityExchangeResult<byte[]>> log() {
-        return entityExchangeResult -> System.out.println(entityExchangeResult.toString());
-    }
+class QLControllerTest extends DoytoQLApplicationTest {
 
     @Test
     void requestShouldReturnOK() {
