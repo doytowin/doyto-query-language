@@ -1,0 +1,39 @@
+buildscript {
+    ext {
+        springBootVersion = '2.6.6'
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.6.6'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    implementation project(':doyto-query-language-core')
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework:spring-r2dbc'
+    implementation 'io.r2dbc:r2dbc-spi:0.9.1.RELEASE'
+    implementation 'io.r2dbc:r2dbc-pool:0.9.0.RELEASE'
+    implementation 'win.doyto:doyto-query-webflux:0.3.0-SNAPSHOT'
+    implementation 'win.doyto:doyto-query-r2dbc:0.3.0-SNAPSHOT'
+
+    testImplementation project(':doyto-query-language-test')
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testRuntimeOnly 'io.r2dbc:r2dbc-h2:0.9.1.RELEASE'
+    testRuntimeOnly 'com.h2database:h2:2.1.210'
+}

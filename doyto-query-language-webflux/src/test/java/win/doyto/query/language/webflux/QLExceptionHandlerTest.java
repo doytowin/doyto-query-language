@@ -15,12 +15,11 @@
  *
  */
 
-package win.doyto.query.language.component;
+package win.doyto.query.language.webflux;
 
 import org.junit.jupiter.api.Test;
-import win.doyto.query.DoytoQLApplicationTest;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
-import win.doyto.query.language.doytoql.TestUtil;
+import win.doyto.query.language.test.TestUtil;
 
 import java.util.List;
 

@@ -15,11 +15,12 @@
  *
  */
 
-package win.doyto.query.language.doytoql;
+package win.doyto.query.language.webflux;
 
 import org.junit.jupiter.api.Test;
-import win.doyto.query.DoytoQLApplicationTest;
 import win.doyto.query.core.PageQuery;
+import win.doyto.query.language.doytoql.DoytoQLRequest;
+import win.doyto.query.language.test.TestUtil;
 import win.doyto.query.web.response.ErrorCodeException;
 
 import java.util.LinkedHashMap;
@@ -34,6 +35,7 @@ import static org.hamcrest.Matchers.containsInRelativeOrder;
  *
  * @author f0rb on 2022-03-31
  */
+@SuppressWarnings("java:S2699")
 class QLControllerTest extends DoytoQLApplicationTest {
 
     @Test
@@ -168,7 +170,6 @@ class QLControllerTest extends DoytoQLApplicationTest {
                 .hasMessage("OPERATION_NOT_SUPPORTED");
     }
 
-
     @Test
     void supportOrQuery() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
@@ -179,7 +180,6 @@ class QLControllerTest extends DoytoQLApplicationTest {
         filters.put("accountOr", Map.of("username", "f0rb", "email", "f0rb"));
         filters.put("valid", true);
         doytoQLRequest.setFilters(filters);
-
 
         postAndSuccess(doytoQLRequest)
                 .jsonPath("$.data.total").isEqualTo(1)

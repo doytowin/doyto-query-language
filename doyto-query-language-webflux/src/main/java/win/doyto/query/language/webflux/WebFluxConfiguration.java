@@ -15,7 +15,7 @@
  *
  */
 
-package win.doyto.query.language.config;
+package win.doyto.query.language.webflux;
 
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.context.annotation.Bean;

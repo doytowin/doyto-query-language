@@ -15,7 +15,7 @@
  *
  */
 
-package win.doyto.query.language.component;
+package win.doyto.query.language.webflux;
 
 import io.r2dbc.spi.R2dbcDataIntegrityViolationException;
 import lombok.AllArgsConstructor;
