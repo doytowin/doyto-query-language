@@ -27,9 +27,10 @@ import win.doyto.query.language.doytoql.DoytoQLRequest;
 import win.doyto.query.language.doytoql.QLErrorCode;
 import win.doyto.query.r2dbc.R2dbcOperations;
 import win.doyto.query.service.PageList;
-import win.doyto.query.web.response.ErrorCode;
 import win.doyto.query.web.response.ErrorCodeException;
 import win.doyto.query.web.response.JsonBody;
+
+import javax.validation.Valid;
 
 import static win.doyto.query.sql.QLBuilder.*;
 
@@ -48,11 +49,8 @@ public class QLController {
     @SuppressWarnings("java:S1452")
     @PostMapping("DoytoQL")
     @Transactional
-    public Mono<?> execute(@RequestBody DoytoQLRequest request) {
-        String operation = request.getOperation();
-        ErrorCode.assertNotNull(operation, QLErrorCode.OPERATION_SHOULD_NOT_BE_NULL);
-        ErrorCode.assertNotNull(request.getDomain(), QLErrorCode.DOMAIN_SHOULD_NOT_BE_NULL);
-        return switch (operation) {
+    public Mono<?> execute(@RequestBody @Valid DoytoQLRequest request) {
+        return switch (request.getOperation()) {
             case "delete" -> r2dbcOperations.update(buildDeleteSql(request));
             case "insert" -> r2dbcOperations.update(buildInsertSql(request));
             case "update" -> r2dbcOperations.update(buildUpdateSql(request));

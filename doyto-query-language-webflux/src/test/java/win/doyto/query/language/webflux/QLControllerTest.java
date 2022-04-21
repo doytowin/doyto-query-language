@@ -20,14 +20,14 @@ package win.doyto.query.language.webflux;
 import org.junit.jupiter.api.Test;
 import win.doyto.query.core.PageQuery;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
+import win.doyto.query.language.doytoql.QLErrorCode;
 import win.doyto.query.language.test.TestUtil;
-import win.doyto.query.web.response.ErrorCodeException;
+import win.doyto.query.web.response.PresetErrorCode;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.containsInRelativeOrder;
 
 /**
@@ -139,35 +139,29 @@ class QLControllerTest extends DoytoQLApplicationTest {
 
     @Test
     void shouldProvideOperation() {
-        QLController qlController = new QLController(null);
         DoytoQLRequest request = new DoytoQLRequest();
 
-        assertThatThrownBy(() -> qlController.execute(request))
-                .isInstanceOf(ErrorCodeException.class)
-                .hasMessage("OPERATION_SHOULD_NOT_BE_NULL");
+        postAndFail(request)
+                .jsonPath("$.code").isEqualTo(PresetErrorCode.ARGUMENT_VALIDATION_FAILED.getCode());
     }
 
     @Test
     void shouldProvideDomain() {
-        QLController qlController = new QLController(null);
         DoytoQLRequest request = new DoytoQLRequest();
         request.setOperation("query");
 
-        assertThatThrownBy(() -> qlController.execute(request))
-                .isInstanceOf(ErrorCodeException.class)
-                .hasMessage("DOMAIN_SHOULD_NOT_BE_NULL");
+        postAndFail(request)
+                .jsonPath("$.code").isEqualTo(PresetErrorCode.ARGUMENT_VALIDATION_FAILED.getCode());
     }
 
     @Test
     void shouldProvideSupportedOperation() {
-        QLController qlController = new QLController(null);
         DoytoQLRequest request = new DoytoQLRequest();
         request.setOperation("unknown");
         request.setDomain(DOMAIN_USER);
 
-        assertThatThrownBy(() -> qlController.execute(request))
-                .isInstanceOf(ErrorCodeException.class)
-                .hasMessage("OPERATION_NOT_SUPPORTED");
+        postAndFail(request)
+                .jsonPath("$.code").isEqualTo(QLErrorCode.OPERATION_NOT_SUPPORTED.getCode());
     }
 
     @Test

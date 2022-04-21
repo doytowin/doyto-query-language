@@ -23,6 +23,7 @@ import win.doyto.query.core.PageQuery;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import javax.validation.constraints.NotEmpty;
 
 /**
  * DoytoQLRequest
@@ -32,7 +33,9 @@ import java.util.List;
 @Getter
 @Setter
 public class DoytoQLRequest {
+    @NotEmpty
     private String operation;
+    @NotEmpty
     private String domain;
     private PageQuery page;
     private LinkedHashMap<String, Object> filters;

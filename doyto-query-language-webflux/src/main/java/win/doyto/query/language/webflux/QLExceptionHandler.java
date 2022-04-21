@@ -23,9 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import win.doyto.query.language.doytoql.QLErrorCode;
 import win.doyto.query.web.component.ErrorCodeI18nService;
 import win.doyto.query.web.response.ErrorCode;
+import win.doyto.query.web.response.ErrorResponse;
+import win.doyto.query.web.response.PresetErrorCode;
 
 
 /**
@@ -46,6 +49,12 @@ class QLExceptionHandler {
         log.error("R2dbcDataIntegrityViolationException: " + e.getMessage(), e.getCause());
         String errorMessage = e.getMessage().substring(0, e.getMessage().indexOf(':'));
         return errorCodeI18nService.buildErrorCode(QLErrorCode.DATA_INTEGRITY_VIOLATION, e.getSqlState(), errorMessage);
+    }
+
+    @ExceptionHandler(WebExchangeBindException.class)
+    public ErrorCode handleWebExchangeBindException(WebExchangeBindException e) {
+        log.error("WebExchangeBindException: {}", e.getMessage());
+        return new ErrorResponse(this.errorCodeI18nService.buildErrorCode(PresetErrorCode.ARGUMENT_VALIDATION_FAILED), e.getBindingResult());
     }
 
 }
