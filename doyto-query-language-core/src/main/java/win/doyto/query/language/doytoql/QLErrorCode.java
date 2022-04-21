@@ -30,14 +30,14 @@ import win.doyto.query.web.response.ErrorCode;
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum QLErrorCode implements ErrorCode {
     SUCCESS,
-    OPERATION_SHOULD_NOT_BE_NULL(1000),
-    OPERATION_NOT_SUPPORTED,
-    DOMAIN_SHOULD_NOT_BE_NULL,
+    OPERATION_NOT_SUPPORTED(1000),
     DATA_SHOULD_NOT_BE_NULL,
     DATA_SHOULD_NOT_BE_EMPTY,
     DATA_SHOULD_CONTAIN_AT_LEAST_ONE_FIELD,
     TYPE_OF_OR_FILTER_SHOULD_BE_OBJECT,
     OR_FILTER_SHOULD_CONTAIN_AT_LEAST_ONE_CONDITION,
+    DATA_INTEGRITY_VIOLATION,
+
     ;
 
     private final Integer code;

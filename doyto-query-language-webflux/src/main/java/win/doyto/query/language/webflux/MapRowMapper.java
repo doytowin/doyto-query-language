@@ -15,7 +15,7 @@
  *
  */
 
-package win.doyto.query.language.doytoql;
+package win.doyto.query.language.webflux;
 
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Row;

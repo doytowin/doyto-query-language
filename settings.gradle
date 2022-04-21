@@ -8,3 +8,7 @@ pluginManagement {
 rootProject.name = 'doyto-query-language-parent'
 
 include 'doyto-query-language-core'
+include 'doyto-query-language-test'
+include 'doyto-query-language-web'
+include 'doyto-query-language-webflux'
+

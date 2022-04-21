@@ -15,30 +15,16 @@
  *
  */
 
-package win.doyto.query.language.doytoql;
+package win.doyto.query.language.webflux;
 
-import lombok.Getter;
-import lombok.Setter;
-import win.doyto.query.core.PageQuery;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import javax.validation.constraints.NotEmpty;
+@SpringBootApplication
+public class DoytoQLApplication {
 
-/**
- * DoytoQLRequest
- *
- * @author f0rb on 2022-03-31
- */
-@Getter
-@Setter
-public class DoytoQLRequest {
-    @NotEmpty
-    private String operation;
-    @NotEmpty
-    private String domain;
-    private PageQuery page;
-    private LinkedHashMap<String, Object> filters;
-    private List<LinkedHashMap<String, Object>> data;
-    private List<String> columns;
+    public static void main(String[] args) {
+        SpringApplication.run(DoytoQLApplication.class, args);
+    }
+
 }
