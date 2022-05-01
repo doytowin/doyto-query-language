@@ -18,9 +18,13 @@
 package win.doyto.query.sql;
 
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import win.doyto.query.config.GlobalConfiguration;
+import win.doyto.query.core.DomainRoute;
 import win.doyto.query.core.PageQuery;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
+import win.doyto.query.language.doytoql.QLDomainRoute;
 import win.doyto.query.language.doytoql.QLErrorCode;
 import win.doyto.query.util.CommonUtil;
 import win.doyto.query.web.response.ErrorCode;
@@ -31,6 +35,7 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static win.doyto.query.sql.BuildHelper.buildOrderBy;
 import static win.doyto.query.sql.BuildHelper.buildPaging;
@@ -48,6 +53,11 @@ public class QLBuilder {
 
     private static final Collector<CharSequence, ?, String> COLLECTOR_WHERE = Collectors.joining(" AND ", WHERE, EMPTY);
     private static final Collector<CharSequence, ?, String> COLLECTOR_OR = Collectors.joining(SPACE_OR, "(", ")");
+
+    private static final String QUERY_FIELD_FORMAT = "%sQuery";
+    private final String joinIdFormat = GlobalConfiguration.instance().getJoinIdFormat();
+    private final String tableFormat = GlobalConfiguration.instance().getTableFormat();
+    private final String joinTableFormat = GlobalConfiguration.instance().getJoinTableFormat();
 
     public static SqlAndArgs buildQuerySql(DoytoQLRequest request) {
         return SqlAndArgs.buildSqlWithArgs(args -> {
@@ -145,4 +155,113 @@ public class QLBuilder {
         }
         return setClauses.toString();
     }
+
+    public static String buildNestedQuery(QLDomainRoute domainRoute, List<Object> argList) {
+        List<String> domains = domainRoute.getPath();
+        String[] domainIds = prepareDomainIds(domains);
+        String[] joinTables = prepareJoinTables(domains);
+        String lastDomain;
+        if (domainRoute.isReverse()) {
+            lastDomain = domains.get(0);
+        } else {
+            ArrayUtils.reverse(domainIds);
+            ArrayUtils.reverse(joinTables);
+            lastDomain = domains.get(domains.size() - 1);
+        }
+        return buildClause(lastDomain, domains, domainIds, joinTables, argList, domainRoute);
+    }
+
+    private String[] prepareDomainIds(List<String> domains) {
+        return domains.stream().map(domain -> String.format(joinIdFormat, domain)).toArray(String[]::new);
+    }
+
+    private String[] prepareJoinTables(List<String> domains) {
+        return IntStream.range(0, domains.size() - 1)
+                        .mapToObj(i -> String.format(joinTableFormat, domains.get(i), domains.get(i + 1)))
+                        .toArray(String[]::new);
+    }
+
+    private String buildClause(
+            String lastDomain, List<String> domains, String[] domainIds, String[] joinTables,
+            List<Object> argList, QLDomainRoute domainRoute) {
+        int current = domainIds.length - 1;
+        StringBuilder subQueryBuilder = new StringBuilder();
+        subQueryBuilder.append(ID).append(IN).append("(");
+        while (true) {
+            buildStartForCurrentDomain(subQueryBuilder, domainIds[current], joinTables[current - 1]);
+            if (--current <= 0) {
+                break;
+            }
+            buildWhereForCurrentDomain(subQueryBuilder, domainIds[current]);
+            buildQueryForCurrentDomain(subQueryBuilder, domains.get(current), domainRoute.getFilters(), argList);
+        }
+        buildQueryForLastDomain(subQueryBuilder, lastDomain, domainIds, argList, domainRoute);
+        appendTailParenthesis(subQueryBuilder, joinTables.length);
+        return subQueryBuilder.toString();
+    }
+
+    private void buildWhereForCurrentDomain(StringBuilder subQueryBuilder, String domainIds) {
+        subQueryBuilder.append(WHERE).append(domainIds).append(IN).append("(");
+    }
+
+    private void buildStartForCurrentDomain(StringBuilder subQueryBuilder, String domainId, String joinTable) {
+        subQueryBuilder.append(SELECT).append(domainId).append(FROM).append(joinTable);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void buildQueryForCurrentDomain(StringBuilder subQueryBuilder, String currentDomain, LinkedHashMap<String, Object> filters, List<Object> argList) {
+        String queryName = String.format(QUERY_FIELD_FORMAT, currentDomain);
+        if (filters.containsKey(queryName)) {
+            LinkedHashMap<String, Object> queryForDomain = (LinkedHashMap<String, Object>) filters.get(queryName);
+            String where = buildWhere(queryForDomain, argList);
+            String table = String.format(tableFormat, currentDomain);
+            subQueryBuilder.append(SELECT).append(ID).append(FROM).append(table).append(where);
+            subQueryBuilder.append(" INTERSECT ");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void buildQueryForLastDomain(
+            StringBuilder subQueryBuilder, String lastDomain, String[] domainIds,
+            List<Object> argList, QLDomainRoute qlDomainRoute
+    ) {
+        for (Map.Entry<String, Object> entry : qlDomainRoute.getFilters().entrySet()) {
+            if (entry.getKey().startsWith(lastDomain)) {
+                Object value = entry.getValue();
+                if (value instanceof LinkedHashMap<?, ?>) {
+                    buildSubQueryForLastDomain(
+                            subQueryBuilder, lastDomain, domainIds, argList,
+                            qlDomainRoute, (LinkedHashMap<String, Object>) value);
+                } else {
+                    buildWhereForLastDomain(subQueryBuilder, argList, entry.getKey(), value);
+                }
+                break;
+            }
+        }
+    }
+
+    private void buildSubQueryForLastDomain(
+            StringBuilder subQueryBuilder, String lastDomain, String[] domainIds,
+            List<Object> argList, DomainRoute domainRoute, LinkedHashMap<String, Object> value
+    ) {
+        String table = String.format(tableFormat, lastDomain);
+        String where = buildWhere(value, argList);
+        if (domainIds.length > 1) {
+            subQueryBuilder.append(WHERE).append(domainIds[0]);
+        }
+        subQueryBuilder.append(IN).append("(")
+                       .append(SELECT).append(domainRoute.getLastDomainIdColumn())
+                       .append(FROM).append(table).append(where)
+                       .append(")");
+    }
+
+    private void buildWhereForLastDomain(StringBuilder subQueryBuilder, List<Object> args, String key, Object value) {
+        String clause = buildConditionForField(key, args, value);
+        subQueryBuilder.append(WHERE).append(clause);
+    }
+
+    private void appendTailParenthesis(StringBuilder subQueryBuilder, int count) {
+        subQueryBuilder.append(StringUtils.repeat(')', count));
+    }
+
 }

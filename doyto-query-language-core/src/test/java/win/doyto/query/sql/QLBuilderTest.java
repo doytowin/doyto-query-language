@@ -19,7 +19,9 @@ package win.doyto.query.sql;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;
+import win.doyto.query.config.GlobalConfiguration;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
+import win.doyto.query.language.doytoql.QLDomainRoute;
 import win.doyto.query.language.doytoql.TestUtil;
 import win.doyto.query.util.BeanUtil;
 import win.doyto.query.web.response.ErrorCodeException;
@@ -37,6 +39,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author f0rb on 2022-04-01
  */
 class QLBuilderTest {
+    static {
+        GlobalConfiguration.instance().setMapCamelCaseToUnderscore(true);
+    }
 
     @Test
     void supportMultiFilters() {
@@ -167,4 +172,100 @@ class QLBuilderTest {
         String where = QLBuilder.buildWhere(doytoQLRequest, List.of());
         assertThat(where).isEmpty();
     }
+
+    @Test
+    void supportedNestedQueryWithTwoDomains() {
+        String conditions = "{\"path\":[\"user\", \"role\"]}";
+        QLDomainRoute qlDomainRoute = BeanUtil.parse(conditions, new TypeReference<>() {});
+        List<Object> args = new ArrayList<>();
+        String sql = QLBuilder.buildNestedQuery(qlDomainRoute, args);
+
+        String expected = "id IN (SELECT user_id FROM j_user_and_role)";
+        assertThat(sql).isEqualTo(expected);
+        assertThat(args).isEmpty();
+    }
+
+    @Test
+    void supportedNestedQueryWithThreeDomains() {
+        String conditions = "{\"path\":[\"user\", \"role\", \"perm\"]}";
+        QLDomainRoute qlDomainRoute = BeanUtil.parse(conditions, new TypeReference<>() {});
+        List<Object> args = new ArrayList<>();
+        String sql = QLBuilder.buildNestedQuery(qlDomainRoute, args);
+
+        String expected = "id IN (" +
+                "SELECT user_id FROM j_user_and_role WHERE role_id IN (" +
+                "SELECT role_id FROM j_role_and_perm" +
+                "))";
+        assertThat(sql).isEqualTo(expected);
+        assertThat(args).isEmpty();
+    }
+
+    @Test
+    void supportedReverseNestedQueryWithThreeDomains() {
+        String conditions = "{\"path\":[\"user\", \"role\", \"perm\"], reverse: true}";
+        QLDomainRoute qlDomainRoute = BeanUtil.parse(conditions, new TypeReference<>() {});
+        List<Object> args = new ArrayList<>();
+        String sql = QLBuilder.buildNestedQuery(qlDomainRoute, args);
+
+        String expected = "id IN (" +
+                "SELECT perm_id FROM j_role_and_perm WHERE role_id IN (" +
+                "SELECT role_id FROM j_user_and_role" +
+                "))";
+        assertThat(sql).isEqualTo(expected);
+        assertThat(args).isEmpty();
+    }
+
+    @Test
+    void supportedNestedQueryWithSimpleConditionForLastDomain() {
+        String conditions = "{\"path\":[\"user\", \"role\", \"perm\"], \"filters\": {\"perm_idIn\": [1, 3, 5]}}";
+        QLDomainRoute qlDomainRoute = BeanUtil.parse(conditions, new TypeReference<>() {});
+        List<Object> args = new ArrayList<>();
+
+        String sql = QLBuilder.buildNestedQuery(qlDomainRoute, args);
+
+        String expected = "id IN (" +
+                "SELECT user_id FROM j_user_and_role WHERE role_id IN (" +
+                "SELECT role_id FROM j_role_and_perm WHERE perm_id IN (?, ?, ?)" +
+                "))";
+        assertThat(sql).isEqualTo(expected);
+        assertThat(args).containsExactly(1, 3, 5);
+    }
+
+    @Test
+    void supportedNestedQueryWithSimpleQueryForLastDomain() {
+        GlobalConfiguration.instance().setMapCamelCaseToUnderscore(true);
+        String conditions = "{\"path\":[\"user\", \"role\", \"perm\"], \"filters\": {\"permQuery\": {\"permNameStart\": \"user:\"}}}";
+        QLDomainRoute qlDomainRoute = BeanUtil.parse(conditions, new TypeReference<>() {});
+        List<Object> args = new ArrayList<>();
+
+        String sql = QLBuilder.buildNestedQuery(qlDomainRoute, args);
+
+        String expected = "id IN (" +
+                "SELECT user_id FROM j_user_and_role WHERE role_id IN (" +
+                "SELECT role_id FROM j_role_and_perm WHERE perm_id IN (" +
+                "SELECT id FROM t_perm WHERE perm_name LIKE ?" +
+                ")))";
+        assertThat(sql).isEqualTo(expected);
+        assertThat(args).containsExactly("user:%");
+    }
+
+    @Test
+    void supportedNestedQueryWithFilterForMediumDomain() {
+        String conditions = "{\"path\":[\"user\", \"role\", \"perm\"]," +
+                "\"filters\": {\"roleQuery\": {\"valid\": true}, \"permId\": 2}}";
+        QLDomainRoute qlDomainRoute = BeanUtil.parse(conditions, new TypeReference<>() {});
+        List<Object> args = new ArrayList<>();
+
+        String sql = QLBuilder.buildNestedQuery(qlDomainRoute, args);
+
+        String expected = "id IN (" +
+                "SELECT user_id FROM j_user_and_role WHERE role_id IN " +
+                "(SELECT id FROM t_role WHERE valid = ?" +
+                " INTERSECT " +
+                "SELECT role_id FROM j_role_and_perm WHERE perm_id = ?)" +
+                ")";
+        assertThat(sql).isEqualTo(expected);
+        assertThat(args).containsExactly(true, 2);
+    }
+
 }
