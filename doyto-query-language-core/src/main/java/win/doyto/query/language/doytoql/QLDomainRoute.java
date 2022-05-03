@@ -17,6 +17,7 @@
 
 package win.doyto.query.language.doytoql;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,7 @@ import lombok.experimental.SuperBuilder;
 import win.doyto.query.core.AbstractDomainRoute;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * QLDomainRoute
@@ -35,7 +37,12 @@ import java.util.LinkedHashMap;
 @SuperBuilder
 @NoArgsConstructor
 public class QLDomainRoute extends AbstractDomainRoute {
+    private final Map<String, Object> filters = new LinkedHashMap<>();
 
-    private final LinkedHashMap<String, Object> filters = new LinkedHashMap<>();
+    @JsonAnySetter
+    public QLDomainRoute add(String key, Object value) {
+        filters.put(key, value);
+        return this;
+    }
 
 }

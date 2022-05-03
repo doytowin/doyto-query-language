@@ -45,7 +45,7 @@ class QLBuilderTest {
 
     @Test
     void supportMultiFilters() {
-        String conditions = "{\"id\": 1, \"valid\": true}";
+        String conditions = "{\"id\":1,\"valid\":true}";
         LinkedHashMap<String, Object> filters = BeanUtil.parse(conditions, new TypeReference<>() {});
         List<Object> args = new ArrayList<>();
         String sql = QLBuilder.buildWhere(filters, args);
@@ -56,7 +56,7 @@ class QLBuilderTest {
 
     @Test
     void supportGt() {
-        String conditions = "{\"idGt\": 1}";
+        String conditions = "{\"idGt\":1}";
         LinkedHashMap<String, Object> filters = BeanUtil.parse(conditions, new TypeReference<>() {});
         List<Object> args = new ArrayList<>();
         String sql = QLBuilder.buildWhere(filters, args);
@@ -67,8 +67,8 @@ class QLBuilderTest {
 
     @Test
     void checkSupportedSuffix() {
-        String conditions = "{\"idEq\": 1, \"idNot\": 2, \"idGt\": 3, \"idGe\": 4, \"idLt\": 5, \"idLe\": 6, \"idIn\": [1,2,3], \"idNotIn\": [5,6]," +
-                "\"usernameContain\": \"test\", \"usernameStart\": \"test\", \"usernameNotLike\": \"test\", \"memoNull\": true, \"memoNotNull\": true}";
+        String conditions = "{\"idEq\":1,\"idNot\":2,\"idGt\":3,\"idGe\":4,\"idLt\":5,\"idLe\":6,\"idIn\":[1,2,3],\"idNotIn\":[5,6]," +
+                "\"usernameContain\":\"test\",\"usernameStart\":\"test\",\"usernameNotLike\":\"test\",\"memoNull\":true,\"memoNotNull\":true}";
         LinkedHashMap<String, Object> filters = BeanUtil.parse(conditions, new TypeReference<>() {});
         List<Object> args = new ArrayList<>();
         String sql = QLBuilder.buildWhere(filters, args);
@@ -175,7 +175,7 @@ class QLBuilderTest {
 
     @Test
     void supportedNestedQueryWithTwoDomains() {
-        String conditions = "{\"path\":[\"user\", \"role\"]}";
+        String conditions = "{\"path\":[\"user\",\"role\"]}";
         QLDomainRoute qlDomainRoute = BeanUtil.parse(conditions, new TypeReference<>() {});
         List<Object> args = new ArrayList<>();
         String sql = QLBuilder.buildNestedQuery(qlDomainRoute, args);
@@ -187,7 +187,7 @@ class QLBuilderTest {
 
     @Test
     void supportedNestedQueryWithThreeDomains() {
-        String conditions = "{\"path\":[\"user\", \"role\", \"perm\"]}";
+        String conditions = "{\"path\":[\"user\",\"role\",\"perm\"]}";
         QLDomainRoute qlDomainRoute = BeanUtil.parse(conditions, new TypeReference<>() {});
         List<Object> args = new ArrayList<>();
         String sql = QLBuilder.buildNestedQuery(qlDomainRoute, args);
@@ -202,7 +202,7 @@ class QLBuilderTest {
 
     @Test
     void supportedReverseNestedQueryWithThreeDomains() {
-        String conditions = "{\"path\":[\"user\", \"role\", \"perm\"], reverse: true}";
+        String conditions = "{\"path\":[\"user\",\"role\",\"perm\"], reverse:true}";
         QLDomainRoute qlDomainRoute = BeanUtil.parse(conditions, new TypeReference<>() {});
         List<Object> args = new ArrayList<>();
         String sql = QLBuilder.buildNestedQuery(qlDomainRoute, args);
@@ -217,7 +217,7 @@ class QLBuilderTest {
 
     @Test
     void supportedNestedQueryWithSimpleConditionForLastDomain() {
-        String conditions = "{\"path\":[\"user\", \"role\", \"perm\"], \"filters\": {\"perm_idIn\": [1, 3, 5]}}";
+        String conditions = "{\"path\":[\"user\",\"role\",\"perm\"],\"filters\":{\"perm_idIn\":[1, 3, 5]}}";
         QLDomainRoute qlDomainRoute = BeanUtil.parse(conditions, new TypeReference<>() {});
         List<Object> args = new ArrayList<>();
 
@@ -234,7 +234,7 @@ class QLBuilderTest {
     @Test
     void supportedNestedQueryWithSimpleQueryForLastDomain() {
         GlobalConfiguration.instance().setMapCamelCaseToUnderscore(true);
-        String conditions = "{\"path\":[\"user\", \"role\", \"perm\"], \"filters\": {\"permQuery\": {\"permNameStart\": \"user:\"}}}";
+        String conditions = "{\"path\":[\"user\",\"role\",\"perm\"],\"filters\":{\"permQuery\":{\"permNameStart\":\"user:\"}}}";
         QLDomainRoute qlDomainRoute = BeanUtil.parse(conditions, new TypeReference<>() {});
         List<Object> args = new ArrayList<>();
 
@@ -251,8 +251,8 @@ class QLBuilderTest {
 
     @Test
     void supportedNestedQueryWithFilterForMediumDomain() {
-        String conditions = "{\"path\":[\"user\", \"role\", \"perm\"]," +
-                "\"filters\": {\"roleQuery\": {\"valid\": true}, \"permId\": 2}}";
+        String conditions = "{\"path\":[\"user\",\"role\",\"perm\"]," +
+                "\"filters\":{\"roleQuery\":{\"valid\":true},\"permId\":2}}";
         QLDomainRoute qlDomainRoute = BeanUtil.parse(conditions, new TypeReference<>() {});
         List<Object> args = new ArrayList<>();
 

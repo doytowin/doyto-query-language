@@ -41,4 +41,5 @@ public class DoytoQLRequest {
     private LinkedHashMap<String, Object> filters;
     private List<LinkedHashMap<String, Object>> data;
     private List<String> columns;
+    private QLDomainRoute domainRoute;
 }

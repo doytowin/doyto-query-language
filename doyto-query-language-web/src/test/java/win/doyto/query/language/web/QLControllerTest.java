@@ -19,7 +19,12 @@ package win.doyto.query.language.web;
 
 import org.junit.jupiter.api.Test;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
+import win.doyto.query.language.doytoql.QLDomainRoute;
 
+import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.Matchers.containsInRelativeOrder;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 /**
@@ -42,6 +47,82 @@ class QLControllerTest extends DoytoQLApplicationTest {
                 .andExpect(jsonPath("$.data.list[0].username").value("f0rb"))
                 .andExpect(jsonPath("$.data.list[1].username").value("user2"))
         ;
+    }
+
+    /**
+     * User and role have following relations:
+     * (1, 1)
+     * (1, 2)
+     * (3, 3)
+     * (4, 2)
+     * <p>
+     * Role and Perm have following relations:
+     * (1, 1)
+     * (1, 2)
+     * (1, 3)
+     * (1, 4)
+     * (2, 1)
+     * (2, 2)
+     * (3, 1)
+     * (4, 1)
+     * (5, 1)
+     * <p>
+     * Then User-Role-Perm have relations described by following 3D coordinate points:
+     * (User, Role, Perm)
+     * ------------------
+     * (   1,    1,   1 )
+     * (   1,    1,   2 )
+     * (   1,    1,   3 )
+     * (   1,    1,   4 )
+     * (   1,    2,   1 )
+     * (   1,    2,   2 )
+     * (   3,    3,   1 )
+     * (   4,    2,   1 )
+     * (   4,    2,   2 )
+     * (   0,    4,   1 )
+     * (   0,    5,   1 )
+     * <p>
+     * So Perm[1] is assigned to User[1,3,4] via Role[1,2,3]
+     */
+    @Test
+    void queryUserByPerm1() throws Exception {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("query");
+        doytoQLRequest.setDomain(DOMAIN_USER);
+        doytoQLRequest.setColumns(List.of("id", "username"));
+
+        QLDomainRoute qlDomainRoute = QLDomainRoute
+                .builder().path(List.of("user", "role", "perm"))
+                .build()
+                .add("perm_id", 1);
+        doytoQLRequest.setDomainRoute(qlDomainRoute);
+
+        postAndSuccess(doytoQLRequest)
+                .andExpect(jsonPath("$.data.total").value(3))
+                .andExpect(jsonPath("$.data.list..id", containsInRelativeOrder(1, 3, 4)));
+    }
+
+    /**
+     * `valid` of Role[3] is false, so Perm[1] is only
+     * assigned to User[1,4] via Role[1,2]
+     */
+    @Test
+    void queryUserByPerm1WithValidRole() throws Exception {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("query");
+        doytoQLRequest.setDomain(DOMAIN_USER);
+        doytoQLRequest.setColumns(List.of("id", "username"));
+
+        QLDomainRoute qlDomainRoute = QLDomainRoute
+                .builder().path(List.of("user", "role", "perm"))
+                .build()
+                .add("roleQuery", Map.of("valid", true))
+                .add("perm_id", 1);
+        doytoQLRequest.setDomainRoute(qlDomainRoute);
+
+        postAndSuccess(doytoQLRequest)
+                .andExpect(jsonPath("$.data.total").value(2))
+                .andExpect(jsonPath("$.data.list..id", containsInRelativeOrder(1, 4)));
     }
 
 }

@@ -36,6 +36,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static win.doyto.query.sql.BuildHelper.buildOrderBy;
 import static win.doyto.query.sql.BuildHelper.buildPaging;
@@ -81,15 +82,27 @@ public class QLBuilder {
     }
 
     static String buildWhere(DoytoQLRequest request, List<Object> args) {
-        LinkedHashMap<String, Object> filters = request.getFilters();
-        if (filters == null || filters.isEmpty()) {
-            return EMPTY;
+        StringJoiner joiner = new StringJoiner(AND);
+        QLDomainRoute domainRoute = request.getDomainRoute();
+        if (domainRoute != null) {
+            String nestedQuery = buildNestedQuery(domainRoute, args);
+            joiner.add(nestedQuery);
         }
-        return buildWhere(filters, args);
+
+        LinkedHashMap<String, Object> filters = request.getFilters();
+        if (filters != null && !filters.isEmpty()) {
+            String and = buildWhereStream(filters, args).collect(Collectors.joining(AND));
+            joiner.add(and);
+        }
+        return joiner.length() == 0 ? "": WHERE + joiner;
+    }
+
+    static String buildWhere(LinkedHashMap<String, Object> filters, List<Object> args) {
+        return buildWhereStream(filters, args).collect(COLLECTOR_WHERE);
     }
 
     @SuppressWarnings("unchecked")
-    static String buildWhere(LinkedHashMap<String, Object> filters, List<Object> args) {
+    private static Stream<String> buildWhereStream(LinkedHashMap<String, Object> filters, List<Object> args) {
         return filters.entrySet().stream()
                       .map(e -> {
                           if (e.getKey().endsWith("Or")) {
@@ -100,8 +113,7 @@ public class QLBuilder {
                               return buildConditionForOr(args, orConditions);
                           }
                           return buildConditionForField(e.getKey(), args, e.getValue());
-                      })
-                      .collect(COLLECTOR_WHERE);
+                      });
     }
 
     private static String buildConditionForOr(List<Object> args, LinkedHashMap<String, Object> orConditions) {
@@ -209,7 +221,7 @@ public class QLBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    private void buildQueryForCurrentDomain(StringBuilder subQueryBuilder, String currentDomain, LinkedHashMap<String, Object> filters, List<Object> argList) {
+    private void buildQueryForCurrentDomain(StringBuilder subQueryBuilder, String currentDomain, Map<String, Object> filters, List<Object> argList) {
         String queryName = String.format(QUERY_FIELD_FORMAT, currentDomain);
         if (filters.containsKey(queryName)) {
             LinkedHashMap<String, Object> queryForDomain = (LinkedHashMap<String, Object>) filters.get(queryName);

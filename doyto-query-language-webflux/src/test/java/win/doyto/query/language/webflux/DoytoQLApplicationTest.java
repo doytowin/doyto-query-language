@@ -49,11 +49,12 @@ public abstract class DoytoQLApplicationTest {
 
     @BeforeEach
     void setUp(@Autowired R2dbcOperations r2dbcOperations) throws IOException {
-        var schema = StreamUtils.copyToString(
-                this.getClass().getResourceAsStream("/schema.sql"),
-                Charset.defaultCharset()
-        );
-        r2dbcOperations.update(schema).block();
+        r2dbcOperations.update(readString("/schema.sql")).block();
+        r2dbcOperations.update(readString("/data.sql")).block();
+    }
+
+    private String readString(String name) throws IOException {
+        return StreamUtils.copyToString(this.getClass().getResourceAsStream(name), Charset.defaultCharset());
     }
 
     protected WebTestClient.BodyContentSpec postAndSuccess(DoytoQLRequest body) {
