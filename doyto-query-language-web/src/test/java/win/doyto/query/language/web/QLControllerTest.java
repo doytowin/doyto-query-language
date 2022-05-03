@@ -18,9 +18,11 @@
 package win.doyto.query.language.web;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.test.annotation.Rollback;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
 import win.doyto.query.language.doytoql.QLDomainRoute;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author f0rb on 2022-03-31
  */
 @SuppressWarnings("java:S2699")
+@Rollback
 class QLControllerTest extends DoytoQLApplicationTest {
 
     @Test
@@ -108,6 +111,35 @@ class QLControllerTest extends DoytoQLApplicationTest {
      */
     @Test
     void queryUserByPerm1WithValidRole() throws Exception {
+        DoytoQLRequest doytoQLRequest = queryUserByPerm1AndValidRole();
+
+        postAndSuccess(doytoQLRequest)
+                .andExpect(jsonPath("$.data.total").value(2))
+                .andExpect(jsonPath("$.data.list..id", containsInRelativeOrder(1, 4)));
+    }
+
+    /**
+     * Grand Role[4] to User[3], then Perm[1] is assigned to User[1,4] via Role[1,2,4]
+     */
+    @Test
+    void queryUserByPerm1WithValidRoleAfterGrant() throws Exception {
+        DoytoQLRequest grantRequest = new DoytoQLRequest();
+        grantRequest.setOperation("insert");
+        grantRequest.setDomain("j_user_and_role");
+        LinkedHashMap<String, Object> e1 = new LinkedHashMap<>();
+        e1.put("user_id", 3);
+        e1.put("role_id", 4);
+        grantRequest.setData(List.of(e1));
+        postAndSuccess(grantRequest);
+
+        DoytoQLRequest doytoQLRequest = queryUserByPerm1AndValidRole();
+
+        postAndSuccess(doytoQLRequest)
+                .andExpect(jsonPath("$.data.total").value(3))
+                .andExpect(jsonPath("$.data.list..id", containsInRelativeOrder(1, 3, 4)));
+    }
+
+    private DoytoQLRequest queryUserByPerm1AndValidRole() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("query");
         doytoQLRequest.setDomain(DOMAIN_USER);
@@ -119,10 +151,7 @@ class QLControllerTest extends DoytoQLApplicationTest {
                 .add("roleQuery", Map.of("valid", true))
                 .add("perm_id", 1);
         doytoQLRequest.setDomainRoute(qlDomainRoute);
-
-        postAndSuccess(doytoQLRequest)
-                .andExpect(jsonPath("$.data.total").value(2))
-                .andExpect(jsonPath("$.data.list..id", containsInRelativeOrder(1, 4)));
+        return doytoQLRequest;
     }
 
 }

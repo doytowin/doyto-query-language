@@ -23,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.transaction.annotation.Transactional;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
 import win.doyto.query.util.BeanUtil;
 
@@ -37,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author f0rb on 2022-04-16
  */
+@Transactional
 @SpringBootTest(classes = DoytoQLApplication.class)
 @AutoConfigureMockMvc
 public abstract class DoytoQLApplicationTest {
