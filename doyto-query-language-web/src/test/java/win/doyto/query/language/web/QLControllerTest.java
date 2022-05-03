@@ -154,4 +154,26 @@ class QLControllerTest extends DoytoQLApplicationTest {
         return doytoQLRequest;
     }
 
+    /**
+     * User[4] is granted Perm[1,2,3,4]
+     */
+    @Test
+    void queryPremByUsernameLike() throws Exception {
+        DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
+        doytoQLRequest.setOperation("query");
+        doytoQLRequest.setDomain("t_perm");
+        doytoQLRequest.setColumns(List.of("id", "perm_name"));
+
+        QLDomainRoute qlDomainRoute = QLDomainRoute
+                .builder()
+                .path(List.of("user", "role", "perm"))
+                .reverse(true)
+                .build()
+                .add("roleQuery", Map.of("valid", true))
+                .add("userQuery", Map.of("usernameLike", "f0rb"));
+        doytoQLRequest.setDomainRoute(qlDomainRoute);
+
+        postAndSuccess(doytoQLRequest)
+                .andExpect(jsonPath("$.data.list..id", containsInRelativeOrder(1, 2, 3, 4)));
+    }
 }
