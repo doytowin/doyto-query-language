@@ -32,6 +32,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static win.doyto.query.language.doytoql.TestUtil.DOMAIN_USER;
 
 /**
  * QLBuilderTest
@@ -84,7 +85,7 @@ class QLBuilderTest {
     void supportInsertMulti() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("insert");
-        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setDomain(DOMAIN_USER);
         doytoQLRequest.setData(List.of(TestUtil.buildEntity("6"), TestUtil.buildEntity("7")));
 
         SqlAndArgs sqlAndArgs = QLBuilder.buildInsertSql(doytoQLRequest);
@@ -98,7 +99,7 @@ class QLBuilderTest {
     void supportQuerySpecifiedColumns() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("select");
-        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setDomain(DOMAIN_USER);
         doytoQLRequest.setColumns(List.of("username", "email", "mobile"));
 
         SqlAndArgs sqlAndArgs = QLBuilder.buildQuerySql(doytoQLRequest);

@@ -1,6 +1,6 @@
 {
   "operation": "delete",
-  "domain": "t_user",
+  "domain": "user",
   "filters": {
     "id": 1
   }

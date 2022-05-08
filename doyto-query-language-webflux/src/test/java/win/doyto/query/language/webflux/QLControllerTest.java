@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.containsInRelativeOrder;
+import static win.doyto.query.language.test.TestUtil.DOMAIN_USER;
 
 /**
  * QLControllerTest
@@ -168,7 +169,7 @@ class QLControllerTest extends DoytoQLApplicationTest {
     void supportOrQuery() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("query");
-        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setDomain(DOMAIN_USER);
 
         LinkedHashMap<String, Object> filters = new LinkedHashMap<>();
         filters.put("accountOr", Map.of("username", "f0rb", "email", "f0rb"));

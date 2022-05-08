@@ -19,6 +19,7 @@ package win.doyto.query.language.doytoql;
 
 import lombok.Getter;
 import lombok.Setter;
+import win.doyto.query.config.GlobalConfiguration;
 import win.doyto.query.core.PageQuery;
 
 import java.util.LinkedHashMap;
@@ -33,6 +34,8 @@ import javax.validation.constraints.NotEmpty;
 @Getter
 @Setter
 public class DoytoQLRequest {
+    private static final String TABLE_FORMAT = GlobalConfiguration.instance().getTableFormat();
+
     @NotEmpty
     private String operation;
     @NotEmpty
@@ -42,4 +45,8 @@ public class DoytoQLRequest {
     private List<LinkedHashMap<String, Object>> data;
     private List<String> columns;
     private QLDomainRoute domainRoute;
+
+    public String toTableName() {
+        return String.format(TABLE_FORMAT, domain);
+    }
 }

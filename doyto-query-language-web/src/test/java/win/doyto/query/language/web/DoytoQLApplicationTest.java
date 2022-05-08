@@ -43,8 +43,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public abstract class DoytoQLApplicationTest {
 
-    protected static final String DOMAIN_USER = "t_user";
-
     @Resource
     protected MockMvc mockMvc;
 

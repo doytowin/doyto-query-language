@@ -23,6 +23,8 @@ import win.doyto.query.language.test.TestUtil;
 
 import java.util.List;
 
+import static win.doyto.query.language.test.TestUtil.DOMAIN_USER;
+
 /**
  * QLExceptionHandlerTest
  *

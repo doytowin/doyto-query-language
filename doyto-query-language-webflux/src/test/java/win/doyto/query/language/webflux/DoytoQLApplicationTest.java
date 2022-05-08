@@ -42,8 +42,6 @@ import java.util.function.Consumer;
 @AutoConfigureWebTestClient
 public abstract class DoytoQLApplicationTest {
 
-    protected static final String DOMAIN_USER = "t_user";
-
     @Autowired
     protected WebTestClient webTestClient;
 

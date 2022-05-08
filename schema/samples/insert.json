@@ -1,6 +1,6 @@
 {
   "operation": "insert",
-  "domain": "t_user",
+  "domain": "user",
   "data": {
     "username": "user6",
     "email": "test6@qq.com",

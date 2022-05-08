@@ -29,6 +29,7 @@ import java.util.List;
  */
 @SuppressWarnings("java:S1118")
 public class TestUtil {
+    public static final String DOMAIN_USER = "user";
 
     @SuppressWarnings("java:S1319")
     public static LinkedHashMap<String, Object> buildEntity(String index) {
@@ -46,7 +47,7 @@ public class TestUtil {
     public static DoytoQLRequest buildUpdateRequest() {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("update");
-        doytoQLRequest.setDomain("t_user");
+        doytoQLRequest.setDomain(DOMAIN_USER);
 
         LinkedHashMap<String, Object> entity = new LinkedHashMap<>();
         entity.put("nickname", "kitty");

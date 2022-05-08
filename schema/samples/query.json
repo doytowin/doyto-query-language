@@ -1,6 +1,6 @@
 {
   "operation": "query",
-  "domain": "t_user",
+  "domain": "user",
   "columns": [
     "id",
     "username",

@@ -64,7 +64,7 @@ public class QLBuilder {
         return SqlAndArgs.buildSqlWithArgs(args -> {
             List<String> columns = request.getColumns();
             String columnStr = columns != null ? String.join(SEPARATOR, columns) : "*";
-            String sql = SELECT + columnStr + FROM + request.getDomain();
+            String sql = SELECT + columnStr + FROM + request.toTableName();
 
             sql += buildWhere(request, args);
             PageQuery pageQuery = request.getPage();
@@ -78,7 +78,7 @@ public class QLBuilder {
 
     public static SqlAndArgs buildCountSql(DoytoQLRequest request) {
         return SqlAndArgs.buildSqlWithArgs(args -> SELECT + COUNT +
-                FROM + request.getDomain() + buildWhere(request, args));
+                FROM + request.toTableName() + buildWhere(request, args));
     }
 
     static String buildWhere(DoytoQLRequest request, List<Object> args) {
@@ -123,7 +123,7 @@ public class QLBuilder {
     }
 
     public static SqlAndArgs buildDeleteSql(DoytoQLRequest request) {
-        return SqlAndArgs.buildSqlWithArgs(args -> DELETE_FROM + request.getDomain() + buildWhere(request, args));
+        return SqlAndArgs.buildSqlWithArgs(args -> DELETE_FROM + request.toTableName() + buildWhere(request, args));
     }
 
     public static SqlAndArgs buildInsertSql(DoytoQLRequest request) {
@@ -137,7 +137,7 @@ public class QLBuilder {
                 argList.addAll(datum.values());
                 placeholders.add(wildInsertValue);
             }
-            return CrudBuilder.buildInsertSql(request.getDomain(), columns, placeholders.toString());
+            return CrudBuilder.buildInsertSql(request.toTableName(), columns, placeholders.toString());
         });
     }
 
@@ -151,10 +151,10 @@ public class QLBuilder {
             LinkedHashMap<String, Object> target = data.get(0);
             ErrorCode.assertFalse(target.isEmpty(), QLErrorCode.DATA_SHOULD_CONTAIN_AT_LEAST_ONE_FIELD);
 
-            String domain = request.getDomain();
+            String tableName = request.toTableName();
             String setClause = readValueToArgList(target, argList);
             String whereClause = buildWhere(request, argList);
-            return CrudBuilder.buildUpdateSql(domain, setClause) + whereClause;
+            return CrudBuilder.buildUpdateSql(tableName, setClause) + whereClause;
         });
     }
 

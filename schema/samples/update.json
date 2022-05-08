@@ -1,6 +1,6 @@
 {
   "operation": "update",
-  "domain": "t_user",
+  "domain": "user",
   "filters": {
     "id": 2
   },

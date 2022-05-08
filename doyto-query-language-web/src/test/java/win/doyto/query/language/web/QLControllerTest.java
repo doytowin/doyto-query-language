@@ -17,6 +17,7 @@
 
 package win.doyto.query.language.web;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.Rollback;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
@@ -28,6 +29,7 @@ import java.util.Map;
 
 import static org.hamcrest.Matchers.containsInRelativeOrder;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static win.doyto.query.language.test.TestUtil.DOMAIN_USER;
 
 /**
  * QLControllerTest
@@ -121,6 +123,7 @@ class QLControllerTest extends DoytoQLApplicationTest {
     /**
      * Grand Role[4] to User[3], then Perm[1] is assigned to User[1,4] via Role[1,2,4]
      */
+    @Disabled("Disabled until association operations are up!")
     @Test
     void queryUserByPerm1WithValidRoleAfterGrant() throws Exception {
         DoytoQLRequest grantRequest = new DoytoQLRequest();
@@ -161,7 +164,7 @@ class QLControllerTest extends DoytoQLApplicationTest {
     void queryPremByUsernameLike() throws Exception {
         DoytoQLRequest doytoQLRequest = new DoytoQLRequest();
         doytoQLRequest.setOperation("query");
-        doytoQLRequest.setDomain("t_perm");
+        doytoQLRequest.setDomain("perm");
         doytoQLRequest.setColumns(List.of("id", "perm_name"));
 
         QLDomainRoute qlDomainRoute = QLDomainRoute
