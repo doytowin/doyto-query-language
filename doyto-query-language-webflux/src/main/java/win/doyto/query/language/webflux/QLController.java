@@ -43,7 +43,7 @@ import static win.doyto.query.sql.QLBuilder.*;
 @RestController
 @AllArgsConstructor
 public class QLController {
-
+    private static final MapRowMapper ROW_MAPPER = new MapRowMapper();
     private R2dbcOperations r2dbcOperations;
 
     @SuppressWarnings("java:S1452")
@@ -55,7 +55,7 @@ public class QLController {
             case "insert" -> r2dbcOperations.update(buildInsertSql(request));
             case "update" -> r2dbcOperations.update(buildUpdateSql(request));
             case "query" -> r2dbcOperations
-                    .query(buildQuerySql(request), new MapRowMapper())
+                    .query(buildQuerySql(request), ROW_MAPPER)
                     .collectList()
                     .zipWith(r2dbcOperations.count(buildCountSql(request)))
                     .map(t -> new PageList<>(t.getT1(), t.getT2()));
