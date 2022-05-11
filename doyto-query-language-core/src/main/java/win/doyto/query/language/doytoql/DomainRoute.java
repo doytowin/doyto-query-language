@@ -17,38 +17,19 @@
 
 package win.doyto.query.language.doytoql;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * QLDomainRoute
+ * DomainRoute
  *
- * @author f0rb on 2022-04-26
+ * @author f0rb on 2022-05-11
  */
-@Getter
-@Setter
-@SuperBuilder
-@NoArgsConstructor
-public class QLDomainRoute implements DomainRoute {
+public interface DomainRoute {
 
-    private List<String> path;
+    List<String> getPath();
 
-    private boolean reverse;
-    @NonNull
-    @Builder.Default
-    private String lastDomainIdColumn = "id";
+    boolean isReverse();
 
-    private final Map<String, Object> filters = new LinkedHashMap<>();
-
-    @JsonAnySetter
-    public QLDomainRoute add(String key, Object value) {
-        filters.put(key, value);
-        return this;
-    }
+    String getLastDomainIdColumn();
 
 }

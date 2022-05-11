@@ -21,8 +21,8 @@ import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import win.doyto.query.config.GlobalConfiguration;
-import win.doyto.query.core.DomainRoute;
 import win.doyto.query.core.PageQuery;
+import win.doyto.query.language.doytoql.DomainRoute;
 import win.doyto.query.language.doytoql.DoytoQLRequest;
 import win.doyto.query.language.doytoql.QLDomainRoute;
 import win.doyto.query.language.doytoql.QLErrorCode;
@@ -94,7 +94,7 @@ public class QLBuilder {
             String and = buildWhereStream(filters, args).collect(Collectors.joining(AND));
             joiner.add(and);
         }
-        return joiner.length() == 0 ? "": WHERE + joiner;
+        return joiner.length() == 0 ? EMPTY : WHERE + joiner;
     }
 
     static String buildWhere(LinkedHashMap<String, Object> filters, List<Object> args) {
